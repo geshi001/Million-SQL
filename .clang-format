@@ -1,9 +1,9 @@
 ---
-BasedOnStyle: Google
 AccessModifierOffset: '0'
 AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'
 IndentWidth: '4'
 TabWidth: '4'
 UseTab: Never
+PointerAlignment: 'Right'
 ...
