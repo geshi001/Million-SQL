@@ -5,7 +5,7 @@
 enum class AttrType { INT, FLOAT, CHAR };
 
 struct Attribute {
-    AttrType attrType;  // "char", "int", "float"
+    AttrType attrType; // "char", "int", "float"
     std::string attrName;
     size_t charCnt;
     bool isUnique;
@@ -17,12 +17,13 @@ struct Value {
         int ival;
         float fval;
         char cval[256];
-    } val;
+    };
 };
 
-enum class OpType { EQ, NE, LE, GE, LEQ, GEQ };
+enum class OpType { EQ, NE, LT, LEQ, GT, GEQ };
+
 struct QueryCondition {
     std::string attrName;
     OpType op;
     Value val;
-};  // base
+}; // base
