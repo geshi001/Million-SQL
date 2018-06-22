@@ -1,18 +1,24 @@
 #pragma once
+#include <Interpreter/Token.h>
+#include <cctype>
 #include <istream>
 #include <string>
 
 namespace Interpreter {
 
-class Token {
+class Lexer {
   public:
-    Token(const std::string &, const int nl, const int nc);
-    std::string getText() const;
-    int getNl() const;
-    int getNc() const;
+    Lexer(std::istream &);
+    Token nextToken();
 
   private:
-    std::string text;
+    bool nextLine();
+    void skipChars(int);
+    bool skipSpaces();
+
+    std::istream &is;
+    std::string currLine;
+    std::string::iterator p;
     int nl, nc;
 };
 
