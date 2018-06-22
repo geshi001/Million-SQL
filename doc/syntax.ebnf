@@ -1,0 +1,60 @@
+
+<statement>
+    = <create-table-statement>
+    | <drop-table-statement>
+    | <create-index-statement>
+    | <drop-index-statement>
+    | <select-statement>
+    | <insert-statement>
+    | <delete-statement>
+    | <quit-statement>
+    | <execfile-statement>;
+
+<create-table-statement> 
+    = "create" "table" ( <table-declaration-list> ) ";";
+
+<table-declaration-list> 
+    = { <table-declaration>, "," };
+
+<table-declaration> 
+    = <identifier> <attribute-type> [ "unique" ]
+    | "primary" "key" "(" <identifier ")";
+
+<attribute-type> = "int" | "float" | "char" "(" <integer> ")";
+
+<drop-table-statement> = "drop" "table" <identifier> ";";
+
+<create-index-statement> 
+    = "create" "index" <identifier> "on" <identifier> "(" <identifier> ")" ";";
+
+<drop-index-statement>
+    = "drop" "index" <identifier> ";";
+
+<select-statement>
+    = "select" <attribute-list> "from" <identifier> ";"
+    | "select" <attribute-list> "from" <identifier> "where" <predicate-list> ";";
+
+<attribute-list> 
+    = "*" 
+    | { <identifier>, "," }
+
+<predicate-list> = { <predicate>, "and" };
+
+<predicate> = <identifier> <operator> <value>;
+
+<operator> = "=" | "<>" | "<" | ">" | "<=" | ">=";
+
+<value> = <integer> | <floating> | <string>;
+
+<insert-statement> 
+    = "insert" "into" <identifier> "values" "(" <value-list> ")" ";"
+
+<value-list> = { <value>, "," };
+
+<delete-statement>
+    = "delete" "from" <identifier>
+    | "delete" "from" <identifier> "where" <predicate-list> ";";
+
+<quit-statement> = "quit" ";";
+
+<execfile-statement> = "execfile" <string> ";";
