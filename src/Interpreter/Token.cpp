@@ -21,17 +21,17 @@ Token::Token(const std::string &str, const TokenType type, const int nl,
 }
 
 Token::Token(const Symbol &sym, const int nl, const int nc)
-    : nl(nl), nc(nc), type(TokenType::keyword) {
+    : nl(nl), nc(nc), type(TokenType::symbol) {
     value.symval = sym;
 }
 
 Token::Token(const int num, const int nl, const int nc)
-    : nl(nl), nc(nc), type(TokenType::keyword) {
+    : nl(nl), nc(nc), type(TokenType::integer) {
     value.intval = num;
 }
 
 Token::Token(const float num, const int nl, const int nc)
-    : nl(nl), nc(nc), type(TokenType::keyword) {
+    : nl(nl), nc(nc), type(TokenType::floating) {
     value.floatval = num;
 }
 
