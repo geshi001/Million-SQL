@@ -11,7 +11,7 @@
     | <execfile-statement>;
 
 <create-table-statement> 
-    = "create" "table" ( <table-declaration-list> ) ";";
+    = "create" "table" <identifier> "(" <table-declaration-list> ")" ";";
 
 <table-declaration-list> 
     = { <table-declaration>, "," };
