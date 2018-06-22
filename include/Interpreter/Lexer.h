@@ -3,15 +3,17 @@
 #include <cctype>
 #include <istream>
 #include <string>
+#include <vector>
 
 namespace Interpreter {
 
 class Lexer {
   public:
     Lexer(std::istream &);
-    Token nextToken();
+    std::vector<Token> tokenize();
 
   private:
+    Token nextToken();
     bool nextLine();
     void skipChars(int);
     bool skipSpaces();

@@ -5,6 +5,17 @@ namespace Interpreter {
 
 Lexer::Lexer(std::istream &is) : is(is), nl(0), nc(0) { nextLine(); }
 
+std::vector<Token> Lexer::tokenize() {
+    std::vector<Token> tokens;
+    try {
+        while (true) {
+            tokens.push_back(nextToken());
+        }
+    } catch (end_of_file) {
+        return tokens;
+    }
+}
+
 bool Lexer::nextLine() {
     if (!std::getline(is, currLine)) {
         return false;
