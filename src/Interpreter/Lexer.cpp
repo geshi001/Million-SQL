@@ -52,47 +52,46 @@ Token Lexer::nextToken() {
     if (!skipSpaces() || p == currLine.end()) {
         throw end_of_file::eof;
     }
+    int onl = nl, onc = nc;
     if (*p == '(') {
         skipChars(1);
-        return Token(Symbol::LPAREN, nl, nc);
+        return Token(Symbol::LPAREN, onl, onc);
     } else if (*p == ')') {
         skipChars(1);
-        return Token(Symbol::RPAREN, nl, nc);
+        return Token(Symbol::RPAREN, onl, onc);
     } else if (*p == ';') {
         skipChars(1);
-        return Token(Symbol::SEMI, nl, nc);
+        return Token(Symbol::SEMI, onl, onc);
     } else if (*p == ',') {
         skipChars(1);
-        return Token(Symbol::COMMA, nl, nc);
+        return Token(Symbol::COMMA, onl, onc);
     } else if (*p == '=') {
         skipChars(1);
-        return Token(Symbol::EQ, nl, nc);
+        return Token(Symbol::EQ, onl, onc);
     } else if (*p == '*') {
         skipChars(1);
-        return Token(Symbol::ASTERISK, nl, nc);
+        return Token(Symbol::ASTERISK, onl, onc);
     } else if (*p == '<') {
         skipChars(1);
         if (p != currLine.end()) {
             if (*p == '=') {
                 skipChars(1);
-                return Token(Symbol::LEQ, nl, nc);
+                return Token(Symbol::LEQ, onl, onc);
             } else if (*p == '>') {
                 skipChars(1);
-                return Token(Symbol::NE, nl, nc);
+                return Token(Symbol::NE, onl, onc);
             }
-        } else {
-            return Token(Symbol::LT, nl, nc);
         }
+        return Token(Symbol::LT, onl, onc);
     } else if (*p == '>') {
         skipChars(1);
         if (p != currLine.end()) {
             if (*p == '=') {
                 skipChars(1);
-                return Token(Symbol::GEQ, nl, nc);
+                return Token(Symbol::GEQ, onl, onc);
             }
-        } else {
-            return Token(Symbol::GT, nl, nc);
         }
+        return Token(Symbol::GT, onl, onc);
     } else if (std::isalpha(*p) || *p == '_') {
         int n = 1;
         auto e = p + 1;
@@ -107,49 +106,49 @@ Token Lexer::nextToken() {
         std::string str(p, e);
         skipChars(n);
         if (str == "and") {
-            return Token(Keyword::AND, nl, nc);
+            return Token(Keyword::AND, onl, onc);
         } else if (str == "char") {
-            return Token(Keyword::CHAR, nl, nc);
+            return Token(Keyword::CHAR, onl, onc);
         } else if (str == "create") {
-            return Token(Keyword::CREATE, nl, nc);
+            return Token(Keyword::CREATE, onl, onc);
         } else if (str == "delete") {
-            return Token(Keyword::DELETE, nl, nc);
+            return Token(Keyword::DELETE, onl, onc);
         } else if (str == "drop") {
-            return Token(Keyword::DROP, nl, nc);
+            return Token(Keyword::DROP, onl, onc);
         } else if (str == "execfile") {
-            return Token(Keyword::EXECFILE, nl, nc);
+            return Token(Keyword::EXECFILE, onl, onc);
         } else if (str == "float") {
-            return Token(Keyword::FLOAT, nl, nc);
+            return Token(Keyword::FLOAT, onl, onc);
         } else if (str == "from") {
-            return Token(Keyword::FROM, nl, nc);
+            return Token(Keyword::FROM, onl, onc);
         } else if (str == "index") {
-            return Token(Keyword::INDEX, nl, nc);
+            return Token(Keyword::INDEX, onl, onc);
         } else if (str == "insert") {
-            return Token(Keyword::INSERT, nl, nc);
+            return Token(Keyword::INSERT, onl, onc);
         } else if (str == "int") {
-            return Token(Keyword::INT, nl, nc);
+            return Token(Keyword::INT, onl, onc);
         } else if (str == "into") {
-            return Token(Keyword::INTO, nl, nc);
+            return Token(Keyword::INTO, onl, onc);
         } else if (str == "key") {
-            return Token(Keyword::KEY, nl, nc);
+            return Token(Keyword::KEY, onl, onc);
         } else if (str == "on") {
-            return Token(Keyword::ON, nl, nc);
+            return Token(Keyword::ON, onl, onc);
         } else if (str == "primary") {
-            return Token(Keyword::PRIMARY, nl, nc);
+            return Token(Keyword::PRIMARY, onl, onc);
         } else if (str == "quit") {
-            return Token(Keyword::QUIT, nl, nc);
+            return Token(Keyword::QUIT, onl, onc);
         } else if (str == "select") {
-            return Token(Keyword::SELECT, nl, nc);
+            return Token(Keyword::SELECT, onl, onc);
         } else if (str == "table") {
-            return Token(Keyword::TABLE, nl, nc);
+            return Token(Keyword::TABLE, onl, onc);
         } else if (str == "unique") {
-            return Token(Keyword::UNIQUE, nl, nc);
+            return Token(Keyword::UNIQUE, onl, onc);
         } else if (str == "values") {
-            return Token(Keyword::VALUES, nl, nc);
+            return Token(Keyword::VALUES, onl, onc);
         } else if (str == "where") {
-            return Token(Keyword::WHERE, nl, nc);
+            return Token(Keyword::WHERE, onl, onc);
         } else {
-            return Token(str, TokenType::identifier, nl, nc);
+            return Token(str, TokenType::identifier, onl, onc);
         }
     } else if (std::isdigit(*p)) {
         int n = 1;
@@ -175,11 +174,11 @@ Token Lexer::nextToken() {
             }
             float floatval = std::stof(std::string(p, e));
             skipChars(n);
-            return Token(floatval, nl, nc);
+            return Token(floatval, onl, onc);
         }
         int intval = std::stoi(std::string(p, e));
         skipChars(n);
-        return Token(intval, nl, nc);
+        return Token(intval, onl, onc);
     } else if (*p == '\'') {
         int n = 1;
         auto e = p + 1;
@@ -192,13 +191,13 @@ Token Lexer::nextToken() {
             }
         }
         if (*e != '\'') {
-            throw ParseError("multi-line strings not supported", nl, nc);
+            throw ParseError("multi-line strings not supported", nl, nc + n);
         }
         e++;
         n++;
         std::string str(p + 1, e - 1);
         skipChars(n);
-        return Token(str, TokenType::string, nl, nc);
+        return Token(str, TokenType::string, onl, onc);
     } else {
         throw ParseError("unknown token", nl, nc);
     }
