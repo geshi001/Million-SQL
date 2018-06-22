@@ -1,5 +1,5 @@
 ---
-AccessModifierOffset: '0'
+AccessModifierOffset: '-2'
 AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'
 IndentWidth: '4'
