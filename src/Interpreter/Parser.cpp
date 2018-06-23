@@ -1,6 +1,6 @@
 #include <Interpreter/Parser.h>
 #include <cassert>
-#include <iostream>
+#include <cstring>
 #include <sstream>
 
 namespace Interpreter {
@@ -12,8 +12,6 @@ Parser::Parser(std::istream &is) : lexer(is) {
 
 Statements Parser::parse() {
     Statements stmts;
-    std::cout << "start parsing, ";
-    std::cout << std::distance(tokens.begin(), p) << "\n";
     while (p != tokens.end()) {
         auto &token = *p;
         if (token.getType() == TokenType::keyword) {
@@ -22,18 +20,29 @@ Statements Parser::parse() {
                 stmts.push_back(parseCreate());
             } else if (keyword == Keyword::DROP) {
                 stmts.push_back(parseDrop());
+            } else if (keyword == Keyword::SELECT) {
+                stmts.push_back(parseSelect());
+            } else if (keyword == Keyword::INSERT) {
+                stmts.push_back(parseInsert());
+            } else if (keyword == Keyword::DELETE) {
+                stmts.push_back(parseDelete());
+            } else if (keyword == Keyword::QUIT) {
+                stmts.push_back(parseQuit());
+            } else if (keyword == Keyword::EXECFILE) {
+                stmts.push_back(parseExecfile());
             } else {
-                return stmts;
+                raise("unknown statement");
             }
+        } else {
+            raise("unknown statement");
         }
-        std::cout << "parsed one statement, ";
-        std::cout << std::distance(tokens.begin(), p) << "\n";
     }
     return stmts;
 }
 
 PtrStmt Parser::parseCreate() {
-    auto &token = *++p; // skip 'create'
+    skip(); // skip 'create'
+    auto &token = *p;
     if (token.getType() == TokenType::keyword) {
         auto keyword = token.getValue().keyval;
         if (keyword == Keyword::TABLE) {
@@ -46,7 +55,8 @@ PtrStmt Parser::parseCreate() {
 }
 
 PtrStmt Parser::parseDrop() {
-    auto &token = *++p; // skip 'drop'
+    skip(); // skip 'drop'
+    auto &token = *p;
     if (token.getType() == TokenType::keyword) {
         auto keyword = token.getValue().keyval;
         if (keyword == Keyword::TABLE) {
@@ -59,13 +69,13 @@ PtrStmt Parser::parseDrop() {
 }
 
 PtrStmt Parser::parseCreateTable() {
-    ++p; // skip 'table'
+    skip(); // skip 'table'
     auto pStmt = std::make_shared<AST::CreateTableStatement>();
     pStmt->setTableName(getIdentifier());
     expect(Symbol::LPAREN);
     getTableDefns(pStmt);
     while (check(Symbol::COMMA)) {
-        ++p;
+        skip(); // skip ','
         getTableDefns(pStmt);
     }
     expect(Symbol::RPAREN);
@@ -74,7 +84,7 @@ PtrStmt Parser::parseCreateTable() {
 }
 
 PtrStmt Parser::parseDropTable() {
-    ++p; // skip 'table'
+    skip(); // skip 'table'
     auto pStmt = std::make_shared<AST::DropTableStatement>();
     pStmt->setTableName(getIdentifier());
     expect(Symbol::SEMI);
@@ -82,7 +92,7 @@ PtrStmt Parser::parseDropTable() {
 }
 
 PtrStmt Parser::parseCreateIndex() {
-    ++p; // skip 'index'
+    skip(); // skip 'index'
     auto pStmt = std::make_shared<AST::CreateIndexStatement>();
     pStmt->setIndexName(getIdentifier());
     expect(Keyword::ON);
@@ -95,9 +105,84 @@ PtrStmt Parser::parseCreateIndex() {
 }
 
 PtrStmt Parser::parseDropIndex() {
-    ++p; // skip 'table'
+    skip(); // skip 'table'
     auto pStmt = std::make_shared<AST::DropIndexStatement>();
     pStmt->setTableName(getIdentifier());
+    expect(Symbol::SEMI);
+    return pStmt;
+}
+
+PtrStmt Parser::parseSelect() {
+    skip(); // skip 'select'
+    auto pStmt = std::make_shared<AST::SelectStatement>();
+    if (check(Symbol::ASTERISK)) {
+        skip(); // skip '*'
+    } else {
+        pStmt->addAttrName(getIdentifier());
+        while (check(Symbol::COMMA)) {
+            skip(); // skip ','
+            pStmt->addAttrName(getIdentifier());
+        }
+    }
+    expect(Keyword::FROM);
+    pStmt->setTableName(getIdentifier());
+    if (check(Keyword::WHERE)) {
+        skip(); // skip 'where'
+        pStmt->addPredicate(getPredicate());
+        while (check(Keyword::AND)) {
+            skip(); // skip 'and'
+            pStmt->addPredicate(getPredicate());
+        }
+    }
+    expect(Symbol::SEMI);
+    return pStmt;
+}
+
+PtrStmt Parser::parseInsert() {
+    skip(); // skip 'insert'
+    expect(Keyword::INTO);
+    auto pStmt = std::make_shared<AST::InsertStatement>();
+    pStmt->setTableName(getIdentifier());
+    expect(Keyword::VALUES);
+    expect(Symbol::LPAREN);
+    pStmt->addValue(getValue());
+    while (check(Symbol::COMMA)) {
+        skip(); // skip ','
+        pStmt->addValue(getValue());
+    }
+    expect(Symbol::RPAREN);
+    expect(Symbol::SEMI);
+    return pStmt;
+}
+
+PtrStmt Parser::parseDelete() {
+    skip(); // skip 'delete'
+    auto pStmt = std::make_shared<AST::DeleteStatement>();
+    expect(Keyword::FROM);
+    pStmt->setTableName(getIdentifier());
+    if (check(Keyword::WHERE)) {
+        skip(); // skip 'where'
+        pStmt->addPredicate(getPredicate());
+        while (check(Keyword::AND)) {
+            skip(); // skip 'and'
+            pStmt->addPredicate(getPredicate());
+        }
+    }
+    expect(Symbol::SEMI);
+    return pStmt;
+}
+
+PtrStmt Parser::parseQuit() {
+    skip();
+    auto pStmt = std::make_shared<AST::QuitStatement>();
+    expect(Symbol::SEMI);
+    return pStmt;
+}
+
+PtrStmt Parser::parseExecfile() {
+    skip();
+    auto pStmt = std::make_shared<AST::ExecfileStatement>();
+    pStmt->setFilePath(getString());
     expect(Symbol::SEMI);
     return pStmt;
 }
@@ -114,7 +199,7 @@ bool Parser::check(const Symbol &symbol) {
 
 void Parser::expect(const Keyword &keyword) {
     if (check(keyword)) {
-        ++p;
+        skip();
     } else {
         std::stringstream ss;
         ss << "expecting \'";
@@ -126,7 +211,7 @@ void Parser::expect(const Keyword &keyword) {
 
 void Parser::expect(const Symbol &symbol) {
     if (check(symbol)) {
-        ++p;
+        skip();
     } else {
         std::stringstream ss;
         ss << "expecting \'";
@@ -146,13 +231,13 @@ std::string Parser::getIdentifier() {
 
 std::pair<AttrType, size_t> Parser::getAttrType() {
     if (check(Keyword::INT)) {
-        ++p;
+        skip();
         return std::make_pair(AttrType::INT, 0);
     } else if (check(Keyword::FLOAT)) {
-        ++p;
+        skip();
         return std::make_pair(AttrType::FLOAT, 0);
     } else if (check(Keyword::CHAR)) {
-        ++p;
+        skip();
         expect(Symbol::LPAREN);
         int size = getInteger();
         if (size < 1 || size > 255) {
@@ -169,7 +254,7 @@ std::pair<AttrType, size_t> Parser::getAttrType() {
 
 void Parser::getTableDefns(std::shared_ptr<AST::CreateTableStatement> pStmt) {
     if (check(Keyword::PRIMARY)) {
-        ++p;
+        skip();
         expect(Keyword::KEY);
         expect(Symbol::LPAREN);
         std::string primaryKey = getIdentifier();
@@ -181,13 +266,62 @@ void Parser::getTableDefns(std::shared_ptr<AST::CreateTableStatement> pStmt) {
         std::tie(attr.attrType, attr.charCnt) = getAttrType();
         if (check(Keyword::UNIQUE)) {
             attr.isUnique = true;
-            ++p;
+            skip();
         } else {
             attr.isUnique = false;
         }
         pStmt->addAttribute(attr);
     }
 };
+
+Predicate Parser::getPredicate() {
+    Predicate predicate;
+    predicate.attrName = getIdentifier();
+    if (check(Symbol::EQ)) {
+        predicate.op = OpType::EQ;
+    } else if (check(Symbol::NE)) {
+        predicate.op = OpType::NE;
+    } else if (check(Symbol::LT)) {
+        predicate.op = OpType::LT;
+    } else if (check(Symbol::LEQ)) {
+        predicate.op = OpType::LEQ;
+    } else if (check(Symbol::GT)) {
+        predicate.op = OpType::GT;
+    } else if (check(Symbol::GEQ)) {
+        predicate.op = OpType::GEQ;
+    } else {
+        raise(
+            "expecting operators (one of '=', '<>', '<', '<=', '>', and '>=')");
+    }
+    skip();
+    predicate.val = getValue();
+    return predicate;
+}
+
+Value Parser::getValue() {
+    if (p != tokens.end()) {
+        Value value;
+        if (p->getType() == TokenType::integer) {
+            value.attrType = AttrType::INT;
+            value.ival = p++->getValue().intval;
+            return value;
+        } else if (p->getType() == TokenType::floating) {
+            value.attrType = AttrType::FLOAT;
+            value.fval = p++->getValue().floatval;
+            return value;
+        } else if (p->getType() == TokenType::string) {
+            auto str = p++->getValue().strval;
+            if (str.length() >= 1 && str.length() <= 255) {
+                value.attrType = AttrType::CHAR;
+                std::strcpy(value.cval, str.c_str());
+                return value;
+            } else {
+                raise("length of string literal not appropriate");
+            }
+        }
+    }
+    raise("expecting value (int, float, or string)");
+}
 
 int Parser::getInteger() {
     if (p != tokens.end() && p->getType() == TokenType::integer) {
@@ -220,5 +354,7 @@ void Parser::raise(const std::string &what_arg) {
         throw ParseError(what_arg, p->getNl(), p->getNc());
     }
 }
+
+inline void Parser::skip() { ++p; }
 
 } // namespace Interpreter

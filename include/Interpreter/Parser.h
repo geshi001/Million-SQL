@@ -22,10 +22,13 @@ class Parser {
     std::string getIdentifier();
     std::pair<AttrType, size_t> getAttrType();
     void getTableDefns(std::shared_ptr<AST::CreateTableStatement>);
+    Predicate getPredicate();
+    Value getValue();
     int getInteger();
     float getFloating();
     std::string getString();
     void raise(const std::string &);
+    inline void skip();
 
   public:
     Parser(std::istream &is);
@@ -36,6 +39,11 @@ class Parser {
     PtrStmt parseDropTable();
     PtrStmt parseCreateIndex();
     PtrStmt parseDropIndex();
+    PtrStmt parseSelect();
+    PtrStmt parseInsert();
+    PtrStmt parseDelete();
+    PtrStmt parseQuit();
+    PtrStmt parseExecfile();
 };
 
 } // namespace Interpreter
