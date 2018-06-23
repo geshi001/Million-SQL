@@ -22,7 +22,7 @@ struct Value {
 
 enum class OpType { EQ, NE, LT, LEQ, GT, GEQ };
 
-struct QueryCondition {
+struct Predicate {
     std::string attrName;
     OpType op;
     Value val;

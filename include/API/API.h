@@ -2,7 +2,7 @@
 #include <DataType.h>
 
 class API {
-    public:
+  public:
     static void createTable(const std::string &tableName,
                             const std::string &primaryKey,
                             const std::vector<Attribute> &attributes);
@@ -11,20 +11,20 @@ class API {
 
     static void createIndex(const std::string &indexName,
                             const std::string &tableName,
-                            const std::string &attributeName);
+                            const std::string &attrName);
 
     static void dropIndex(const std::string &indexName);
 
     static void select(const std::vector<const std::string> &attributes,
                        const std::string &tableName,
-                       const std::vector<QueryCondition> &queryConditions);
+                       const std::vector<Predicate> &predicates);
 
     static void insert(const std::string &tableName,
                        const std::vector<Value> &values);
 
     static void deleteFrom(const std::string &tableName,
-                           const std::vector<QueryCondition> &queryConditions);
+                           const std::vector<Predicate> &predicate);
     static void quit();
 
-    static void execfile(const std::string& filePath);
+    static void execfile(const std::string &filePath);
 };
