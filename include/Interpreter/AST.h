@@ -10,7 +10,7 @@ namespace AST {
 
 using Identifier = std::string;
 
-using PredicateList = std::vector<QueryCondition>;
+using PredicateList = std::vector<Predicate>;
 
 using ValueList = std::vector<Value>;
 
@@ -37,8 +37,33 @@ class CreateTableStatement : public Statement {
 };
 
 class DropTableStatement : public Statement {
-  private:
+  public:
     std::string tableName;
+
+  public:
+    void setTableName(const std::string &);
+    void callAPI() const override;
+};
+
+class CreateIndexStatement : public Statement {
+  public:
+    std::string indexName;
+    std::string tableName;
+    std::string attrName;
+
+  public:
+    void setIndexName(const std::string &);
+    void setTableName(const std::string &);
+    void setAttrName(const std::string &);
+    void callAPI() const override;
+};
+
+class DropIndexStatement : public Statement {
+  public:
+    std::string indexName;
+
+  public:
+    void setTableName(const std::string &);
     void callAPI() const override;
 };
 

@@ -8,6 +8,7 @@
 namespace Interpreter {
 
 using Statements = std::vector<std::shared_ptr<AST::Statement>>;
+using PtrStmt = std::shared_ptr<AST::Statement>;
 
 class Parser {
   private:
@@ -29,8 +30,12 @@ class Parser {
   public:
     Parser(std::istream &is);
     Statements parse();
-    Statements parseCreate();
-    Statements parseCreateTable();
+    PtrStmt parseCreate();
+    PtrStmt parseDrop();
+    PtrStmt parseCreateTable();
+    PtrStmt parseDropTable();
+    PtrStmt parseCreateIndex();
+    PtrStmt parseDropIndex();
 };
 
 } // namespace Interpreter

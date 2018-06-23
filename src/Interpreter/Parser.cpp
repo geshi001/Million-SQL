@@ -1,4 +1,3 @@
-#define PREFIX "Parser::"
 #include <Interpreter/Parser.h>
 #include <cassert>
 #include <iostream>
@@ -13,37 +12,54 @@ Parser::Parser(std::istream &is) : lexer(is) {
 
 Statements Parser::parse() {
     Statements stmts;
-    if (p == tokens.end())
-        return stmts;
-    auto &token = *p;
-    if (token.getType() == TokenType::keyword) {
-        auto keyword = token.getValue().keyval;
-        if (keyword == Keyword::CREATE) {
-            for (auto &ptr : parseCreate()) {
-                stmts.push_back(ptr);
+    std::cout << "start parsing, ";
+    std::cout << std::distance(tokens.begin(), p) << "\n";
+    while (p != tokens.end()) {
+        auto &token = *p;
+        if (token.getType() == TokenType::keyword) {
+            auto keyword = token.getValue().keyval;
+            if (keyword == Keyword::CREATE) {
+                stmts.push_back(parseCreate());
+            } else if (keyword == Keyword::DROP) {
+                stmts.push_back(parseDrop());
+            } else {
+                return stmts;
             }
         }
+        std::cout << "parsed one statement, ";
+        std::cout << std::distance(tokens.begin(), p) << "\n";
     }
     return stmts;
 }
 
-Statements Parser::parseCreate() {
-    Statements stmts;
-    auto &token = *++p;
+PtrStmt Parser::parseCreate() {
+    auto &token = *++p; // skip 'create'
     if (token.getType() == TokenType::keyword) {
         auto keyword = token.getValue().keyval;
         if (keyword == Keyword::TABLE) {
-            for (auto &ptr : parseCreateTable()) {
-                stmts.push_back(ptr);
-            }
+            return parseCreateTable();
         } else if (keyword == Keyword::INDEX) {
+            return parseCreateIndex();
         }
     }
-    return stmts;
+    raise("cannot parse create statement");
 }
 
-Statements Parser::parseCreateTable() {
-    ++p;
+PtrStmt Parser::parseDrop() {
+    auto &token = *++p; // skip 'drop'
+    if (token.getType() == TokenType::keyword) {
+        auto keyword = token.getValue().keyval;
+        if (keyword == Keyword::TABLE) {
+            return parseDropTable();
+        } else if (keyword == Keyword::INDEX) {
+            return parseDropIndex();
+        }
+    }
+    raise("cannot parse create statement");
+}
+
+PtrStmt Parser::parseCreateTable() {
+    ++p; // skip 'table'
     auto pStmt = std::make_shared<AST::CreateTableStatement>();
     pStmt->setTableName(getIdentifier());
     expect(Symbol::LPAREN);
@@ -54,7 +70,36 @@ Statements Parser::parseCreateTable() {
     }
     expect(Symbol::RPAREN);
     expect(Symbol::SEMI);
-    return {pStmt};
+    return pStmt;
+}
+
+PtrStmt Parser::parseDropTable() {
+    ++p; // skip 'table'
+    auto pStmt = std::make_shared<AST::DropTableStatement>();
+    pStmt->setTableName(getIdentifier());
+    expect(Symbol::SEMI);
+    return pStmt;
+}
+
+PtrStmt Parser::parseCreateIndex() {
+    ++p; // skip 'index'
+    auto pStmt = std::make_shared<AST::CreateIndexStatement>();
+    pStmt->setIndexName(getIdentifier());
+    expect(Keyword::ON);
+    pStmt->setTableName(getIdentifier());
+    expect(Symbol::LPAREN);
+    pStmt->setAttrName(getIdentifier());
+    expect(Symbol::RPAREN);
+    expect(Symbol::SEMI);
+    return pStmt;
+}
+
+PtrStmt Parser::parseDropIndex() {
+    ++p; // skip 'table'
+    auto pStmt = std::make_shared<AST::DropIndexStatement>();
+    pStmt->setTableName(getIdentifier());
+    expect(Symbol::SEMI);
+    return pStmt;
 }
 
 bool Parser::check(const Keyword &keyword) {
