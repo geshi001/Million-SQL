@@ -22,7 +22,7 @@ class Statement {
 };
 
 class CreateTableStatement : public Statement {
-  public:
+  private:
     std::string tableName;
     std::string primaryKey;
     std::vector<Attribute> attributes;
@@ -35,7 +35,7 @@ class CreateTableStatement : public Statement {
 };
 
 class DropTableStatement : public Statement {
-  public:
+  private:
     std::string tableName;
 
   public:
@@ -44,7 +44,7 @@ class DropTableStatement : public Statement {
 };
 
 class CreateIndexStatement : public Statement {
-  public:
+  private:
     std::string indexName;
     std::string tableName;
     std::string attrName;
@@ -57,7 +57,7 @@ class CreateIndexStatement : public Statement {
 };
 
 class DropIndexStatement : public Statement {
-  public:
+  private:
     std::string indexName;
 
   public:
@@ -66,7 +66,7 @@ class DropIndexStatement : public Statement {
 };
 
 class SelectStatement : public Statement {
-  public:
+  private:
     std::vector<std::string> attributes;
     std::string tableName;
     std::vector<Predicate> predicates;
@@ -79,7 +79,7 @@ class SelectStatement : public Statement {
 };
 
 class InsertStatement : public Statement {
-  public:
+  private:
     std::string tableName;
     std::vector<Value> values;
 
@@ -90,7 +90,7 @@ class InsertStatement : public Statement {
 };
 
 class DeleteStatement : public Statement {
-  public:
+  private:
     std::string tableName;
     std::vector<Predicate> predicates;
 
@@ -101,12 +101,12 @@ class DeleteStatement : public Statement {
 };
 
 class QuitStatement : public Statement {
-  public:
+  private:
     void callAPI() const override;
 };
 
 class ExecfileStatement : public Statement {
-  public:
+  private:
     std::string filePath;
 
   public:
