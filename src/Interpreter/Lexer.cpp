@@ -150,7 +150,7 @@ Token Lexer::nextToken() {
         } else {
             return Token(str, TokenType::identifier, onl, onc);
         }
-    } else if (std::isdigit(*p)) {
+    } else if (std::isdigit(*p) || *p == '-') {
         int n = 1;
         auto e = p + 1;
         while (e != currLine.end()) {
