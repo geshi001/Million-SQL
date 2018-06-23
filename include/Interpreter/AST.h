@@ -18,21 +18,19 @@ class Statement {
   public:
     Statement() = default;
     virtual ~Statement() = default;
-    virtual void check() const {};
     virtual void callAPI() const = 0;
 };
 
 class CreateTableStatement : public Statement {
   public:
     std::string tableName;
+    std::string primaryKey;
     std::vector<Attribute> attributes;
-    std::vector<std::string> primaryKeys;
 
   public:
     void setTableName(const std::string &);
     void addAttribute(const Attribute &);
     void addPrimaryKey(const std::string &);
-    void check() const override;
     void callAPI() const override;
 };
 
@@ -64,6 +62,55 @@ class DropIndexStatement : public Statement {
 
   public:
     void setTableName(const std::string &);
+    void callAPI() const override;
+};
+
+class SelectStatement : public Statement {
+  public:
+    std::vector<std::string> attributes;
+    std::string tableName;
+    std::vector<Predicate> predicates;
+
+  public:
+    void setTableName(const std::string &);
+    void addAttrName(const std::string &);
+    void addPredicate(const Predicate &);
+    void callAPI() const override;
+};
+
+class InsertStatement : public Statement {
+  public:
+    std::string tableName;
+    std::vector<Value> values;
+
+  public:
+    void setTableName(const std::string &);
+    void addValue(const Value &);
+    void callAPI() const override;
+};
+
+class DeleteStatement : public Statement {
+  public:
+    std::string tableName;
+    std::vector<Predicate> predicates;
+
+  public:
+    void setTableName(const std::string &);
+    void addPredicate(const Predicate &);
+    void callAPI() const override;
+};
+
+class QuitStatement : public Statement {
+  public:
+    void callAPI() const override;
+};
+
+class ExecfileStatement : public Statement {
+  public:
+    std::string filePath;
+
+  public:
+    void setFilePath(const std::string &);
     void callAPI() const override;
 };
 
