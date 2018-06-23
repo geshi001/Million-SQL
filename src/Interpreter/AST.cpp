@@ -71,6 +71,8 @@ void ExecfileStatement::setFilePath(const std::string &path) {
     filePath = path;
 }
 
+const std::string &ExecfileStatement::getFilePath() const { return filePath; }
+
 void CreateTableStatement::callAPI() const {
     if (primaryKey.empty()) {
         throw std::runtime_error("SQLError: primary key not specified");
@@ -98,7 +100,9 @@ void DeleteStatement::callAPI() const {
 
 void QuitStatement::callAPI() const { API::quit(); }
 
-void ExecfileStatement::callAPI() const { API::execfile(filePath); }
+void ExecfileStatement::callAPI() const {
+    throw std::runtime_error("no API for execfile");
+}
 
 } // namespace AST
 } // namespace Interpreter

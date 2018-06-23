@@ -111,6 +111,7 @@ class ExecfileStatement : public Statement {
 
   public:
     void setFilePath(const std::string &);
+    const std::string &getFilePath() const;
     void callAPI() const override;
 };
 

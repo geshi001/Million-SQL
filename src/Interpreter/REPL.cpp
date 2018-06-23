@@ -18,7 +18,30 @@ void REPL::run() {
             Parser parser(iss);
             auto stmts = parser.parse();
             for (auto pStmt : stmts) {
-                pStmt->callAPI();
+                auto execStmt =
+                    dynamic_cast<AST::ExecfileStatement *>(pStmt.get());
+                if (!execStmt) { // not 'execfile', invoke API
+                    pStmt->callAPI();
+                } else {
+                    auto filePath = execStmt->getFilePath();
+                    std::ifstream ifs(filePath);
+                    Interpreter::Parser fileParser(ifs);
+                    for (auto fileStmt : fileParser.parse()) {
+                        auto quitStmt =
+                            dynamic_cast<AST::QuitStatement *>(fileStmt.get());
+                        auto execStmt = dynamic_cast<AST::ExecfileStatement *>(
+                            fileStmt.get());
+                        if (quitStmt) {
+                            throw std::runtime_error(
+                                "SQLError: 'quit' is not supported in files");
+                        } else if (execStmt) {
+                            throw std::runtime_error("SQLError: 'execfile' is "
+                                                     "not supported in files");
+                        } else {
+                            fileStmt->callAPI();
+                        }
+                    }
+                }
             }
         } catch (std::exception &e) {
             std::cout << e.what() << std::endl;
