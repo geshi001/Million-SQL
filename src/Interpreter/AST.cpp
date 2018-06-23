@@ -1,3 +1,4 @@
+#include <API/API.h>
 #include <Interpreter/AST.h>
 #include <stdexcept>
 
@@ -74,24 +75,30 @@ void CreateTableStatement::callAPI() const {
     if (primaryKey.empty()) {
         throw std::runtime_error("SQLError: primary key not specified");
     }
-    throw "NotImplementedError";
+    API::createTable(tableName, primaryKey, attributes);
 }
 
-void DropTableStatement::callAPI() const { throw "NotImplementedError"; }
+void DropTableStatement::callAPI() const { API::dropTable(tableName); }
 
-void CreateIndexStatement::callAPI() const { throw "NotImplementedError"; }
+void CreateIndexStatement::callAPI() const {
+    API::createIndex(indexName, tableName, attrName);
+}
 
-void DropIndexStatement::callAPI() const { throw "NotImplementedError"; }
+void DropIndexStatement::callAPI() const { API::dropIndex(indexName); }
 
-void SelectStatement::callAPI() const { throw "NotImplementedError"; }
+void SelectStatement::callAPI() const {
+    API::select(attributes, tableName, predicates);
+}
 
-void InsertStatement::callAPI() const { throw "NotImplementedError"; }
+void InsertStatement::callAPI() const { API::insert(tableName, values); }
 
-void DeleteStatement::callAPI() const { throw "NotImplementedError"; }
+void DeleteStatement::callAPI() const {
+    API::deleteFrom(tableName, predicates);
+}
 
-void QuitStatement::callAPI() const { throw "NotImplementedError"; }
+void QuitStatement::callAPI() const { API::quit(); }
 
-void ExecfileStatement::callAPI() const { throw "NotImplementedError"; }
+void ExecfileStatement::callAPI() const { API::execfile(filePath); }
 
 } // namespace AST
 } // namespace Interpreter
