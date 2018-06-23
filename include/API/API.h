@@ -15,7 +15,7 @@ class API {
 
     static void dropIndex(const std::string &indexName);
 
-    static void select(const std::vector<const std::string> &attributes,
+    static void select(const std::vector<std::string> &attributes,
                        const std::string &tableName,
                        const std::vector<Predicate> &predicates);
 
@@ -23,7 +23,7 @@ class API {
                        const std::vector<Value> &values);
 
     static void deleteFrom(const std::string &tableName,
-                           const std::vector<Predicate> &predicate);
+                           const std::vector<Predicate> &predicates);
     static void quit();
 
     static void execfile(const std::string &filePath);
