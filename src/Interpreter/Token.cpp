@@ -43,4 +43,20 @@ int Token::getNl() const { return nl; }
 
 int Token::getNc() const { return nc; }
 
+static const char *keywords[] = {
+    "and",     "char",  "create", "delete", "drop",   "execfile", "float",
+    "from",    "index", "insert", "int",    "into",   "key",      "on",
+    "primary", "quit",  "select", "table",  "unique", "values",   "where"};
+
+static const char *symbols[] = {"(",  ")",  ";", ",",  "=", "<",
+                                "<=", "<>", ">", ">=", "*"};
+
+const char *mapKeywordToString(const Keyword &keyword) {
+    return keywords[static_cast<int>(keyword)];
+}
+
+const char *mapSymbolToString(const Symbol &symbol) {
+    return symbols[static_cast<int>(symbol)];
+}
+
 } // namespace Interpreter

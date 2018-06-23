@@ -41,6 +41,9 @@ enum class Symbol {
     ASTERISK
 };
 
+const char *mapKeywordToString(const Keyword &);
+const char *mapSymbolToString(const Symbol &);
+
 enum class TokenType { keyword, identifier, symbol, integer, floating, string };
 
 struct TokenValue {
