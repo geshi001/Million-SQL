@@ -51,7 +51,7 @@ std::tuple<ValueType, size_t, bool> decodeProperties(const uint32_t bin) {
         type = ValueType::CHAR;
         charCnt = bin & CHAR_MASK;
     }
-    bool isUnique = bin & UNIQUE;
+    bool isUnique = bin & UNIQUE ? true : false;
     return std::make_tuple(type, charCnt, isUnique);
 }
 
