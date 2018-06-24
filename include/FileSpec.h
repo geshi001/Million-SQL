@@ -19,6 +19,7 @@ inline std::string indexFilename(const std::string &name) {
 struct catalogFileHeader {
     uint32_t blockNum;
     uint32_t tableOffset;
+    uint32_t indexOffset;
 };
 
 }; // namespace File
