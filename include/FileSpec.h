@@ -1,16 +1,24 @@
 #pragma once
+#include <cstdint>
 #include <string>
 
 namespace File {
 
-const char *catalogFilename = "minisql.ctl";
+enum class FileType { CATALOG = 0x7ACA, TABLE = 0xB17A, INDEX = 0xE81D };
+
+inline std::string catalogFilename() { return "dbms/minisql.ctl"; }
 
 inline std::string tableFilename(const std::string &name) {
-    return "minisql_" + name + ".tbl";
+    return "dbms/minisql_" + name + ".tbl";
 }
 
 inline std::string indexFilename(const std::string &name) {
-    return "minisql_" + name + ".idx";
+    return "dbms/minisql_" + name + ".idx";
 }
+
+struct catalogFileHeader {
+    uint32_t blockNum;
+    uint32_t tableOffset;
+};
 
 }; // namespace File
