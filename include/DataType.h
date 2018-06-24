@@ -66,3 +66,8 @@ struct Predicate {
     OpType op;
     Value val;
 };
+
+struct Table {
+    std::string tableName;
+    std::vector<Attribute> attributes;
+};
