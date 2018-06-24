@@ -1,29 +1,20 @@
 #pragma once
 #include <BufferManager/Block.h>
-#include <cstring>
-#include <list>
-#include <memory>
-#include <set>
+#include <FileSpec.h>
 
 namespace BufferManager {
 
 const int CACHE_SIZE = 1024;
 
-class BufferManager {
-  private:
-    BufferManager() = default;
-    std::list<PtrBlock> cache;
+void init();
 
-  public:
-    static BufferManager &manager() {
-        static BufferManager instance;
-        return instance;
-    }
+bool fileExists(const std::string &);
 
-    PtrBlock readBlock(const BlockID &id);
+void createFile(const std::string &, const File::FileType);
 
-    void writeBlock(const char *src, const BlockID &id, unsigned int start,
-                    size_t size);
-};
+PtrBlock readBlock(const BlockID &);
+
+void writeBlock(const char *src, const BlockID &id, unsigned int start,
+                size_t size);
 
 } // namespace BufferManager
