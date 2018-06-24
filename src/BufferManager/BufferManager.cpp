@@ -57,6 +57,7 @@ void createFile(const std::string &filename, const File::FileType filetype) {
         File::catalogFileHeader header;
         header.blockNum = 1;
         header.tableOffset = 0;
+        header.indexOffset = 0;
         write(reinterpret_cast<const char *>(&filetype), sizeof(uint32_t));
         write(reinterpret_cast<const char *>(&header), sizeof(header));
         write(empty_buffer, BLOCK_SIZE - sizeof(header) - sizeof(uint32_t));
@@ -83,7 +84,7 @@ PtrBlock readBlock(const BlockID &id) {
     return blkPtr;
 }
 
-void writeBlock(const char *src, const BlockID &id, unsigned int start,
+void writeBlock(const BlockID &id, const char *src, uint32_t start,
                 size_t size) {
     for (auto blkPtr : cache) {
         if (blkPtr->getFilename() == id.first &&

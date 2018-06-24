@@ -1,10 +1,11 @@
 #pragma once
 #include <BufferManager/Block.h>
 #include <FileSpec.h>
+#include <cstdint>
 
 namespace BufferManager {
 
-const int CACHE_SIZE = 1024;
+const size_t CACHE_SIZE = 1024;
 
 void init();
 void exit();
@@ -15,7 +16,6 @@ void createFile(const std::string &, const File::FileType);
 
 PtrBlock readBlock(const BlockID &);
 
-void writeBlock(const char *src, const BlockID &id, unsigned int start,
-                size_t size);
+void writeBlock(const BlockID &, const char *src, uint32_t start, size_t size);
 
 } // namespace BufferManager
