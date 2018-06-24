@@ -69,5 +69,6 @@ struct Predicate {
 
 struct Table {
     std::string tableName;
+    std::string primaryKey;
     std::vector<Attribute> attributes;
 };
