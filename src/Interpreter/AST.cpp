@@ -1,5 +1,6 @@
 #include <API/API.h>
 #include <Interpreter/AST.h>
+#include <SQLError.h>
 #include <stdexcept>
 
 namespace Interpreter {
@@ -17,7 +18,7 @@ void CreateTableStatement::addPrimaryKey(const std::string &id) {
     if (primaryKey.empty()) {
         primaryKey = id;
     } else {
-        throw std::runtime_error("SQLError: multiple primary keys");
+        throw SQLError("multiple primary keys");
     }
 }
 
@@ -75,7 +76,7 @@ const std::string &ExecfileStatement::getFilePath() const { return filePath; }
 
 void CreateTableStatement::callAPI() const {
     if (primaryKey.empty()) {
-        throw std::runtime_error("SQLError: primary key not specified");
+        throw SQLError("primary key not specified");
     }
     API::createTable(tableName, primaryKey, attributes);
 }
@@ -101,7 +102,7 @@ void DeleteStatement::callAPI() const {
 void QuitStatement::callAPI() const { API::quit(); }
 
 void ExecfileStatement::callAPI() const {
-    throw std::runtime_error("no API for execfile");
+    throw SQLError("no API for execfile");
 }
 
 } // namespace AST

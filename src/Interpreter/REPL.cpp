@@ -1,4 +1,5 @@
 #include <Interpreter/REPL.h>
+#include <SQLError.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -32,11 +33,10 @@ void REPL::run() {
                         auto execStmt = dynamic_cast<AST::ExecfileStatement *>(
                             fileStmt.get());
                         if (quitStmt) {
-                            throw std::runtime_error(
-                                "SQLError: 'quit' is not supported in files");
+                            throw SQLError("'quit' is not supported in files");
                         } else if (execStmt) {
-                            throw std::runtime_error("SQLError: 'execfile' is "
-                                                     "not supported in files");
+                            throw SQLError("'execfile' is "
+                                           "not supported in files");
                         } else {
                             fileStmt->callAPI();
                         }
