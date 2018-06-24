@@ -9,13 +9,8 @@ constexpr int BLOCK_SIZE = 4096; // 4KB
 
 using BlockID = std::pair<std::string, uint32_t>;
 
-class BufferManager;
-
 class Block {
-    friend class BufferManager;
-
   private:
-    char block_data[BLOCK_SIZE];
     std::string filename;
     uint32_t offset;
     bool free, dirty, pinned;
@@ -23,7 +18,16 @@ class Block {
     Block &operator=(const Block &) = delete;
 
   public:
+    char block_data[BLOCK_SIZE];
     Block(const BlockID &);
+    const std::string &getFilename() const { return filename; }
+    const uint32_t getOffset() const { return offset; }
+    inline bool isFree() const { return free; }
+    inline bool isDirty() const { return dirty; }
+    inline bool isPinned() const { return pinned; }
+    inline void setFree(const bool value) { free = value; }
+    inline void setDirty(const bool value) { dirty = value; }
+    inline void setPinned(const bool value) { pinned = value; }
     void read();
     void write();
 };
