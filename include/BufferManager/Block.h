@@ -5,12 +5,20 @@
 
 namespace BufferManager {
 
-constexpr int BLOCK_SIZE = 4096; // 4KB
+constexpr size_t BLOCK_SIZE = 4096; // 4KB
 
 using BlockID = std::pair<std::string, uint32_t>;
 
 inline BlockID makeID(const std::string &filename, const uint32_t offset) {
     return std::make_pair(filename, offset);
+}
+
+inline uint32_t blockOffset(const uint32_t byteOffset) {
+    return static_cast<uint32_t>(byteOffset / BLOCK_SIZE);
+}
+
+inline uint32_t inBlockOffset(const uint32_t byteOffset) {
+    return byteOffset - blockOffset(byteOffset) * BLOCK_SIZE;
 }
 
 class Block {
