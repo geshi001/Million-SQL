@@ -11,6 +11,15 @@ static const char empty_buffer[BLOCK_SIZE] = {};
 
 void init() { cache.clear(); }
 
+void exit() {
+    for (auto blkPtr : cache) {
+        if (blkPtr->isDirty()) {
+            blkPtr->write();
+            blkPtr->setDirty(false);
+        }
+    }
+}
+
 bool fileExists(const std::string &filename) {
     static struct stat buffer;
     return (stat(filename.c_str(), &buffer) == 0);
@@ -33,21 +42,27 @@ static void popCache() {
 }
 
 void createFile(const std::string &filename, const File::FileType filetype) {
-    std::ofstream ofs;
-    ofs.open(filename, std::ios::out | std::ios::binary);
+    popCache();
+    auto blkPtr = std::make_shared<Block>(makeID(filename, 0));
+    blkPtr->setFree(false);
+    blkPtr->setDirty(true);
+    std::memset(blkPtr->block_data, 0, BLOCK_SIZE);
+    char *pos = blkPtr->block_data;
+    auto write = [&pos](const char *src, size_t size) {
+        std::memcpy(pos, src, size);
+        pos += size;
+    };
     switch (filetype) {
     case File::FileType::CATALOG: {
         File::catalogFileHeader header;
         header.blockNum = 1;
         header.tableOffset = 0;
-        ofs.write(reinterpret_cast<const char *>(&filetype), sizeof(uint32_t));
-        ofs.write(reinterpret_cast<const char *>(&header), sizeof(header));
-        ofs.write(empty_buffer, BLOCK_SIZE - sizeof(header) - sizeof(uint32_t));
-        break;
+        write(reinterpret_cast<const char *>(&filetype), sizeof(uint32_t));
+        write(reinterpret_cast<const char *>(&header), sizeof(header));
+        write(empty_buffer, BLOCK_SIZE - sizeof(header) - sizeof(uint32_t));
     }
     }
-    ofs.flush();
-    ofs.close();
+    cache.push_front(blkPtr);
 }
 
 PtrBlock readBlock(const BlockID &id) {

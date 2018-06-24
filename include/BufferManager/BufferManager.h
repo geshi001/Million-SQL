@@ -7,6 +7,7 @@ namespace BufferManager {
 const int CACHE_SIZE = 1024;
 
 void init();
+void exit();
 
 bool fileExists(const std::string &);
 

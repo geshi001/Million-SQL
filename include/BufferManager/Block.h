@@ -9,6 +9,10 @@ constexpr int BLOCK_SIZE = 4096; // 4KB
 
 using BlockID = std::pair<std::string, uint32_t>;
 
+inline BlockID makeID(const std::string &filename, const uint32_t offset) {
+    return std::make_pair(filename, offset);
+}
+
 class Block {
   private:
     std::string filename;
