@@ -1,6 +1,7 @@
 #include <BufferManager/BufferManager.h>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include <list>
 #include <sys/stat.h>
 
@@ -64,6 +65,8 @@ void createFile(const std::string &filename, const File::FileType filetype) {
     }
     }
     cache.push_front(blkPtr);
+    blkPtr->createFile();
+    blkPtr->setDirty(false);
 }
 
 PtrBlock readBlock(const BlockID &id) {

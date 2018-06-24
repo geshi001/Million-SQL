@@ -42,6 +42,7 @@ class Block {
     inline void setPinned(const bool value) { pinned = value; }
     void read();
     void write();
+    void createFile();
 };
 
 using PtrBlock = std::shared_ptr<Block>;

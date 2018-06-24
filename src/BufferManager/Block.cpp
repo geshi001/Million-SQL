@@ -20,6 +20,14 @@ void Block::read() {
 }
 
 void Block::write() {
+    std::fstream fs;
+    fs.open(filename, std::ios::in | std::ios::out | std::ios::binary);
+    fs.seekp(BLOCK_SIZE * offset, std::ios::beg);
+    fs.write(block_data, BLOCK_SIZE);
+    fs.close();
+}
+
+void Block::createFile() {
     std::ofstream ofs;
     ofs.open(filename, std::ios::out | std::ios::binary);
     ofs.seekp(BLOCK_SIZE * offset, std::ios::beg);
