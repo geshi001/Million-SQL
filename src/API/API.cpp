@@ -8,17 +8,17 @@ void API::createTable(const std::string &tableName,
 
     for (int i = 0; i < attributes.size(); i++) {
         auto &attr = attributes[i];
-        std::cout << "    " << attr.attrName;
-        switch (attr.attrType) {
-        case AttrType::INT: {
+        std::cout << "    " << attr.name;
+        switch (attr.type) {
+        case ValueType::INT: {
             std::cout << " int";
             break;
         }
-        case AttrType::FLOAT: {
+        case ValueType::FLOAT: {
             std::cout << " float";
             break;
         }
-        case AttrType::CHAR: {
+        case ValueType::CHAR: {
             std::cout << " char(" << attr.charCnt << ")";
             break;
         }
@@ -89,11 +89,11 @@ void API::select(const std::vector<std::string> &attributes,
                 std::cout << " >= ";
             }
 
-            if (pred.val.attrType == AttrType::INT) {
+            if (pred.val.type == ValueType::INT) {
                 std::cout << pred.val.ival;
-            } else if (pred.val.attrType == AttrType::FLOAT) {
+            } else if (pred.val.type == ValueType::FLOAT) {
                 std::cout << pred.val.fval;
-            } else if (pred.val.attrType == AttrType::CHAR) {
+            } else if (pred.val.type == ValueType::CHAR) {
                 std::cout << "\'" << pred.val.cval << "\'";
             }
         }
@@ -110,11 +110,11 @@ void API::insert(const std::string &tableName,
         if (i)
             std::cout << ", ";
         auto &value = values[i];
-        if (value.attrType == AttrType::INT) {
+        if (value.type == ValueType::INT) {
             std::cout << value.ival;
-        } else if (value.attrType == AttrType::FLOAT) {
+        } else if (value.type == ValueType::FLOAT) {
             std::cout << value.fval;
-        } else if (value.attrType == AttrType::CHAR) {
+        } else if (value.type == ValueType::CHAR) {
             std::cout << "\'" << value.cval << "\'";
         }
     }
@@ -148,11 +148,11 @@ void API::deleteFrom(const std::string &tableName,
                 std::cout << " >= ";
             }
 
-            if (pred.val.attrType == AttrType::INT) {
+            if (pred.val.type == ValueType::INT) {
                 std::cout << pred.val.ival;
-            } else if (pred.val.attrType == AttrType::FLOAT) {
+            } else if (pred.val.type == ValueType::FLOAT) {
                 std::cout << pred.val.fval;
-            } else if (pred.val.attrType == AttrType::CHAR) {
+            } else if (pred.val.type == ValueType::CHAR) {
                 std::cout << "\'" << pred.val.cval << "\'";
             }
         }

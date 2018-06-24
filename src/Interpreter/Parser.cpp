@@ -229,13 +229,13 @@ std::string Parser::getIdentifier() {
     }
 }
 
-std::pair<AttrType, size_t> Parser::getAttrType() {
+std::pair<ValueType, size_t> Parser::getAttrType() {
     if (check(Keyword::INT)) {
         skip();
-        return std::make_pair(AttrType::INT, 0);
+        return std::make_pair(ValueType::INT, 0);
     } else if (check(Keyword::FLOAT)) {
         skip();
-        return std::make_pair(AttrType::FLOAT, 0);
+        return std::make_pair(ValueType::FLOAT, 0);
     } else if (check(Keyword::CHAR)) {
         skip();
         expect(Symbol::LPAREN);
@@ -246,7 +246,7 @@ std::pair<AttrType, size_t> Parser::getAttrType() {
                              p->getNc());
         }
         expect(Symbol::RPAREN);
-        return std::make_pair(AttrType::CHAR, static_cast<size_t>(size));
+        return std::make_pair(ValueType::CHAR, static_cast<size_t>(size));
     } else {
         raise("expecting 'int', 'float', or 'char(..)'");
     }
@@ -262,8 +262,8 @@ void Parser::getTableDefns(std::shared_ptr<AST::CreateTableStatement> pStmt) {
         pStmt->addPrimaryKey(primaryKey);
     } else {
         Attribute attr;
-        attr.attrName = getIdentifier();
-        std::tie(attr.attrType, attr.charCnt) = getAttrType();
+        attr.name = getIdentifier();
+        std::tie(attr.type, attr.charCnt) = getAttrType();
         if (check(Keyword::UNIQUE)) {
             attr.isUnique = true;
             skip();
@@ -302,17 +302,17 @@ Value Parser::getValue() {
     if (p != tokens.end()) {
         Value value;
         if (p->getType() == TokenType::integer) {
-            value.attrType = AttrType::INT;
+            value.type = ValueType::INT;
             value.ival = p++->getValue().intval;
             return value;
         } else if (p->getType() == TokenType::floating) {
-            value.attrType = AttrType::FLOAT;
+            value.type = ValueType::FLOAT;
             value.fval = p++->getValue().floatval;
             return value;
         } else if (p->getType() == TokenType::string) {
             auto str = p++->getValue().strval;
             if (str.length() >= 1 && str.length() <= 255) {
-                value.attrType = AttrType::CHAR;
+                value.type = ValueType::CHAR;
                 std::strcpy(value.cval, str.c_str());
                 return value;
             } else {

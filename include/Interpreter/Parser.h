@@ -20,7 +20,7 @@ class Parser {
     void expect(const Keyword &);
     void expect(const Symbol &);
     std::string getIdentifier();
-    std::pair<AttrType, size_t> getAttrType();
+    std::pair<ValueType, size_t> getAttrType();
     void getTableDefns(std::shared_ptr<AST::CreateTableStatement>);
     Predicate getPredicate();
     Value getValue();
