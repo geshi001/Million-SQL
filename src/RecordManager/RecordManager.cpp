@@ -1,3 +1,4 @@
+#include <CatalogManager/CatalogManager.h>
 #include <FileSpec.h>
 #include <RecordManager/RecordManager.h>
 #include <RecordManager/RecordSpec.h>
@@ -22,6 +23,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
     if (!BM::fileExists(filename)) {
         throw SQLError("table \'" + tableName + "\' not exist");
     }
+    auto schema = CM::getSchema(tableName);
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
     blk0->resetPos();
     File::tableFileHeader header;
@@ -46,8 +48,18 @@ void insertRecord(const std::string &tableName, const Record &record) {
         };
         write(reinterpret_cast<const char *>(&header.beginOffset),
               sizeof(uint32_t));
-        for (auto &value : record) {
-            write(value.val(), value.size());
+        if (record.size() != schema->attributes.size()) {
+            throw SQLError("value size mismatch");
+        }
+        for (int i = 0; i < record.size(); i++) {
+            if (record[i].type != schema->attributes[i].type) {
+                throw SQLError("value type mismatch");
+            }
+            if (record[i].type == ValueType::CHAR &&
+                record[i].size() >= schema->attributes[i].size()) {
+                throw SQLError("string too long");
+            }
+            write(record[i].val(), schema->attributes[i].size());
         }
         header.beginOffset = newPos;
         header.deletedOffset = newDelOff;
@@ -71,8 +83,18 @@ void insertRecord(const std::string &tableName, const Record &record) {
         };
         write(reinterpret_cast<const char *>(&header.beginOffset),
               sizeof(uint32_t));
-        for (auto &value : record) {
-            write(value.val(), value.size());
+        if (record.size() != schema->attributes.size()) {
+            throw SQLError("value size mismatch");
+        }
+        for (int i = 0; i < record.size(); i++) {
+            if (record[i].type != schema->attributes[i].type) {
+                throw SQLError("value type mismatch");
+            }
+            if (record[i].type == ValueType::CHAR &&
+                record[i].size() >= schema->attributes[i].size()) {
+                throw SQLError("string too long");
+            }
+            write(record[i].val(), schema->attributes[i].size());
         }
         header.beginOffset = newPos;
         uint32_t size = recordBinarySize(record);
@@ -87,8 +109,39 @@ void insertRecord(const std::string &tableName, const Record &record) {
     }
 }
 
-void loadTable(const std::string &tableName) {
+std::vector<Record> loadTable(std::shared_ptr<Schema> schema) {
+    auto &tableName = schema->tableName;
+    std::vector<Record> records;
     auto filename = File::tableFilename(tableName);
+    if (!BM::fileExists(filename)) {
+        throw SQLError("table \'" + tableName + "\' not exist");
+    }
+    BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
+    blk0->resetPos();
+    File::tableFileHeader header;
+    blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
+    if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
+        throw std::runtime_error("file type not compatible");
+    }
+    uint32_t pos = header.beginOffset;
+    while (pos != 0) {
+        uint32_t blkOff = BM::blockOffset(pos);
+        uint32_t inBlkOff = BM::inBlockOffset(pos);
+        BM::PtrBlock blk = BM::readBlock(BM::makeID(filename, blkOff));
+        blk->resetPos(inBlkOff);
+        Record record;
+        blk->read(reinterpret_cast<char *>(&pos), sizeof(uint32_t));
+        for (auto &attribute : schema->attributes) {
+            Value value(attribute);
+            if (value.type == ValueType::CHAR) {
+                std::memset(value.val(), 0, 256);
+            }
+            blk->read(value.val(), value.size());
+            record.emplace_back(std::move(value));
+        }
+        records.push_back(record);
+    }
+    return records;
 }
 
 void exit() {}

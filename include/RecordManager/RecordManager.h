@@ -14,6 +14,6 @@ void exit();
 
 void createTable(const std::string &);
 void insertRecord(const std::string &, const Record &);
-void loadTable(const std::string &);
+std::vector<Record> loadTable(std::shared_ptr<Schema>);
 
 } // namespace RecordManager
