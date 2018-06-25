@@ -9,14 +9,14 @@
 
 namespace CatalogManager {
 
-std::list<std::shared_ptr<Table>> tables;
-std::map<std::string, std::shared_ptr<Table>> mapTables;
-std::map<std::string, uint32_t> mapTableOffsets;
+std::list<std::shared_ptr<Schema>> schemas;
+std::map<std::string, std::shared_ptr<Schema>> mapSchemas;
+std::map<std::string, uint32_t> mapSchemaOffsets;
 
 void init() {
-    tables.clear();
-    mapTables.clear();
-    mapTableOffsets.clear();
+    schemas.clear();
+    mapSchemas.clear();
+    mapSchemaOffsets.clear();
 
     auto filename = File::catalogFilename();
     if (!BM::fileExists(filename)) {
@@ -34,14 +34,14 @@ void init() {
     while (currP != 0) {
         BM::PtrBlock blk = BM::readBlock(BM::makeID(filename, currP));
         blk->resetPos();
-        auto table = std::make_shared<Table>();
+        auto schema = std::make_shared<Schema>();
         uint32_t numAttrs = 0;
         blk->read(reinterpret_cast<char *>(&nextP), sizeof(uint32_t));
         blk->read(reinterpret_cast<char *>(&numAttrs), sizeof(uint32_t));
         blk->read(strbuf, NAME_LENGTH);
-        table->tableName = std::string(strbuf);
+        schema->tableName = std::string(strbuf);
         blk->read(strbuf, NAME_LENGTH);
-        table->primaryKey = std::string(strbuf);
+        schema->primaryKey = std::string(strbuf);
         for (auto i = 0u; i != numAttrs; ++i) {
             Attribute attribute;
             blk->read(strbuf, NAME_LENGTH);
@@ -50,23 +50,23 @@ void init() {
             blk->read(reinterpret_cast<char *>(&bin), sizeof(uint32_t));
             std::tie(attribute.type, attribute.charCnt, attribute.isUnique) =
                 decodeProperties(bin);
-            table->attributes.push_back(attribute);
+            schema->attributes.push_back(attribute);
         }
-        tables.push_back(table);
-        mapTables[table->tableName] = table;
-        mapTableOffsets[table->tableName] = currP;
+        schemas.push_back(schema);
+        mapSchemas[schema->tableName] = schema;
+        mapSchemaOffsets[schema->tableName] = currP;
         currP = nextP;
     }
 }
 
 void createTable(const std::string &tableName, const std::string &primaryKey,
                  const std::vector<Attribute> &attributes) {
-    auto table = std::make_shared<Table>();
-    table->tableName = tableName;
-    table->primaryKey = primaryKey;
-    table->attributes = attributes;
-    tables.push_front(table);
-    mapTables[tableName] = table;
+    auto schema = std::make_shared<Schema>();
+    schema->tableName = tableName;
+    schema->primaryKey = primaryKey;
+    schema->attributes = attributes;
+    schemas.push_front(schema);
+    mapSchemas[tableName] = schema;
 
     auto filename = File::catalogFilename();
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
@@ -80,7 +80,7 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
     uint32_t nextP = header.tableOffset;
     uint32_t numAttrs = attributes.size();
     header.tableOffset = newP;
-    mapTableOffsets[tableName] = newP;
+    mapSchemaOffsets[tableName] = newP;
 
     uint32_t offset0 = 0, offsetP = 0;
     auto write0 = [&](const char *src, size_t size) {

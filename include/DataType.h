@@ -67,7 +67,7 @@ struct Predicate {
     Value val;
 };
 
-struct Table {
+struct Schema {
     std::string tableName;
     std::string primaryKey;
     std::vector<Attribute> attributes;
