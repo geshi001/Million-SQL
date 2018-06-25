@@ -112,7 +112,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
             write(record[i].val(), schema->attributes[i].size());
         }
         header.beginOffset = newPos;
-        uint32_t size = recordBinarySize(record);
+        uint32_t size = recordBinarySize(*schema);
         if (inBlkOff + size >= BM::BLOCK_SIZE) {
             header.availableOffset = (blkOff + 1) * BM::BLOCK_SIZE;
         } else {
