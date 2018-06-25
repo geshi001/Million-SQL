@@ -33,6 +33,28 @@ struct Value {
         char cval[256];
     };
 
+    const char *val() const {
+        switch (type) {
+        case ValueType::INT:
+            return reinterpret_cast<const char *>(&ival);
+        case ValueType::FLOAT:
+            return reinterpret_cast<const char *>(&fval);
+        case ValueType::CHAR:
+            return cval;
+        }
+    }
+
+    char *val() {
+        switch (type) {
+        case ValueType::INT:
+            return reinterpret_cast<char *>(&ival);
+        case ValueType::FLOAT:
+            return reinterpret_cast<char *>(&fval);
+        case ValueType::CHAR:
+            return cval;
+        }
+    }
+
     size_t size() const {
         switch (type) {
         case ValueType::INT:
@@ -83,3 +105,5 @@ struct Schema {
     std::string primaryKey;
     std::vector<Attribute> attributes;
 };
+
+using Record = std::vector<Value>;
