@@ -15,7 +15,7 @@ void init() { cache.clear(); }
 void exit() {
     for (auto blkPtr : cache) {
         if (blkPtr->isDirty()) {
-            blkPtr->write();
+            blkPtr->writeFile();
             blkPtr->setDirty(false);
         }
     }
@@ -33,7 +33,7 @@ static void popCache() {
             if (blkPtr->isPinned()) {
                 continue;
             } else if (blkPtr->isDirty()) {
-                blkPtr->write();
+                blkPtr->writeFile();
                 blkPtr->setDirty(false);
             }
             cache.erase(std::next(iter).base()); // erase(iter)
@@ -81,7 +81,7 @@ PtrBlock readBlock(const BlockID &id) {
     }
     popCache();
     auto blkPtr = std::make_shared<Block>(id);
-    blkPtr->read();
+    blkPtr->readFile();
     blkPtr->setFree(false);
     cache.push_front(blkPtr);
     return blkPtr;

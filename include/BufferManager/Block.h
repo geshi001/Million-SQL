@@ -28,6 +28,7 @@ class Block {
     bool free, dirty, pinned;
     Block(const Block &) = delete;
     Block &operator=(const Block &) = delete;
+    uint32_t pos;
 
   public:
     char block_data[BLOCK_SIZE];
@@ -40,8 +41,9 @@ class Block {
     inline void setFree(const bool value) { free = value; }
     inline void setDirty(const bool value) { dirty = value; }
     inline void setPinned(const bool value) { pinned = value; }
-    void read();
-    void write();
+    inline void resetPos() { pos = 0u; }
+    void readFile();
+    void writeFile();
     void createFile();
 };
 

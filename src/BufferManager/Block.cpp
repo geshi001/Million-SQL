@@ -11,7 +11,7 @@ Block::Block(const BlockID &id)
     : filename(id.first), offset(id.second), free(true), dirty(false),
       pinned(false) {}
 
-void Block::read() {
+void Block::readFile() {
     std::ifstream ifs;
     ifs.open(filename, std::ios::in | std::ios::binary);
     ifs.seekg(BLOCK_SIZE * offset, std::ios::beg);
@@ -19,7 +19,7 @@ void Block::read() {
     ifs.close();
 }
 
-void Block::write() {
+void Block::writeFile() {
     std::fstream fs;
     fs.open(filename, std::ios::in | std::ios::out | std::ios::binary);
     fs.seekp(BLOCK_SIZE * offset, std::ios::beg);
