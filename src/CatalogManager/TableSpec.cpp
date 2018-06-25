@@ -1,4 +1,4 @@
-#include <CatalogManager/TableSpec.h>
+#include <CatalogManager/CatalogManager.h>
 
 #define INT_t 0x0100u
 #define FLOAT_t 0x0200u
@@ -8,11 +8,11 @@
 
 namespace CatalogManager {
 
-uint32_t binarySize(const Table &table) {
-    uint32_t cnt = sizeof(uint32_t);
-    cnt += table.tableName.length() + 1;
-    for (auto &attribute : table.attributes) {
-        cnt += attribute.name.length() + 1;
+uint32_t binarySize(const Schema &schema) {
+    uint32_t cnt = sizeof(uint32_t) + sizeof(uint32_t);
+    cnt += NAME_LENGTH;
+    for (auto &attribute : schema.attributes) {
+        cnt += NAME_LENGTH;
         cnt += sizeof(uint32_t);
     }
 }
