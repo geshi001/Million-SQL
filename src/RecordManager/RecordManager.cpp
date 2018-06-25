@@ -18,6 +18,15 @@ void createTable(const std::string &tableName) {
     }
 }
 
+void dropTable(const std::string &tableName) {
+    auto filename = File::tableFilename(tableName);
+    if (BM::fileExists(filename)) {
+        BM::deleteFile(filename);
+    } else {
+        throw SQLError("table \'" + tableName + "\' does not exist");
+    }
+}
+
 void insertRecord(const std::string &tableName, const Record &record) {
     auto filename = File::tableFilename(tableName);
     if (!BM::fileExists(filename)) {

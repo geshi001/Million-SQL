@@ -1,6 +1,7 @@
 #include <BufferManager/Block.h>
 #include <CatalogManager/CatalogManager.h>
 #include <CatalogManager/TableSpec.h>
+#include <algorithm>
 #include <list>
 #include <memory>
 #include <stdexcept>
@@ -9,9 +10,16 @@
 
 namespace CatalogManager {
 
+#define DELETED_MARK 0x80000000U
+#define DELETED_MASK 0x7FFFFFFFU
+
 std::list<std::shared_ptr<Schema>> schemas;
 std::unordered_map<std::string, std::shared_ptr<Schema>> mapSchemas;
 std::unordered_map<std::string, uint32_t> mapSchemaOffsets;
+
+bool hasTable(const std::string &tableName) {
+    return mapSchemas.find(tableName) != mapSchemas.end();
+}
 
 void init() {
     schemas.clear();
@@ -35,6 +43,10 @@ void init() {
         auto schema = std::make_shared<Schema>();
         uint32_t numAttrs = 0;
         blk->read(reinterpret_cast<char *>(&nextP), sizeof(uint32_t));
+        if (nextP & DELETED_MARK) {
+            currP = nextP & DELETED_MASK;
+            continue;
+        }
         blk->read(reinterpret_cast<char *>(&numAttrs), sizeof(uint32_t));
         blk->read(strbuf, NAME_LENGTH);
         schema->tableName = std::string(strbuf);
@@ -59,6 +71,9 @@ void init() {
 
 void createTable(const std::string &tableName, const std::string &primaryKey,
                  const std::vector<Attribute> &attributes) {
+    if (hasTable(tableName)) {
+        throw SQLError("table \'" + tableName + "\' already exists");
+    }
     auto schema = std::make_shared<Schema>();
     schema->tableName = tableName;
     schema->primaryKey = primaryKey;
@@ -106,8 +121,27 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
         memset(strbuf, 0, NAME_LENGTH);
         std::strcpy(strbuf, attribute.name.c_str());
         writeP(strbuf, NAME_LENGTH);
-        writeP(reinterpret_cast<char *>(&bin), sizeof(uint32_t));
+        writeP(reinterpret_cast<const char *>(&bin), sizeof(uint32_t));
     }
+}
+
+void dropTable(const std::string &tableName) {
+    if (!hasTable(tableName)) {
+        throw SQLError("table \'" + tableName + "\' does not exist");
+    }
+    auto filename = File::catalogFilename();
+    auto schema = mapSchemas[tableName];
+    uint32_t offset = mapSchemaOffsets[tableName], nextP;
+
+    BM::PtrBlock blk = BM::readBlock(BM::makeID(filename, offset));
+    blk->resetPos(0);
+    blk->read(reinterpret_cast<char *>(&nextP), sizeof(uint32_t));
+    nextP |= DELETED_MARK;
+    BM::writeBlock(BM::makeID(filename, offset),
+                   reinterpret_cast<const char *>(&nextP), 0, sizeof(uint32_t));
+    schemas.erase(std::find(schemas.begin(), schemas.end(), schema));
+    mapSchemas.erase(tableName);
+    mapSchemaOffsets.erase(tableName);
 }
 
 void exit() {}

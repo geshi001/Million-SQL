@@ -13,6 +13,7 @@ void init();
 void exit();
 
 void createTable(const std::string &);
+void dropTable(const std::string &);
 void insertRecord(const std::string &, const Record &);
 std::vector<Record> loadTable(std::shared_ptr<Schema>);
 
