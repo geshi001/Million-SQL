@@ -24,38 +24,30 @@ void init() {
     }
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
     File::FileType filetype;
-    char *pos = blk0->block_data;
-    auto read = [&pos](char *dest, size_t size) {
-        memcpy(dest, pos, size);
-        pos += size;
-    };
+    blk0->resetPos();
     File::catalogFileHeader header;
-    read(reinterpret_cast<char *>(&filetype), sizeof(uint32_t));
-    read(reinterpret_cast<char *>(&header), sizeof(header));
+    blk0->read(reinterpret_cast<char *>(&filetype), sizeof(uint32_t));
+    blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
 
     uint32_t currP = header.tableOffset, nextP = 0;
     static char strbuf[NAME_LENGTH];
     while (currP != 0) {
         BM::PtrBlock blk = BM::readBlock(BM::makeID(filename, currP));
-        char *pos = blk->block_data;
-        auto read = [&pos](char *dest, size_t size) {
-            memcpy(dest, pos, size);
-            pos += size;
-        };
+        blk->resetPos();
         auto table = std::make_shared<Table>();
         uint32_t numAttrs = 0;
-        read(reinterpret_cast<char *>(&nextP), sizeof(uint32_t));
-        read(reinterpret_cast<char *>(&numAttrs), sizeof(uint32_t));
-        read(strbuf, NAME_LENGTH);
+        blk->read(reinterpret_cast<char *>(&nextP), sizeof(uint32_t));
+        blk->read(reinterpret_cast<char *>(&numAttrs), sizeof(uint32_t));
+        blk->read(strbuf, NAME_LENGTH);
         table->tableName = std::string(strbuf);
-        read(strbuf, NAME_LENGTH);
+        blk->read(strbuf, NAME_LENGTH);
         table->primaryKey = std::string(strbuf);
         for (auto i = 0u; i != numAttrs; ++i) {
             Attribute attribute;
-            read(strbuf, NAME_LENGTH);
+            blk->read(strbuf, NAME_LENGTH);
             attribute.name = std::string(strbuf);
             uint32_t bin;
-            read(reinterpret_cast<char *>(&bin), sizeof(uint32_t));
+            blk->read(reinterpret_cast<char *>(&bin), sizeof(uint32_t));
             std::tie(attribute.type, attribute.charCnt, attribute.isUnique) =
                 decodeProperties(bin);
             table->attributes.push_back(attribute);
@@ -79,14 +71,10 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
     auto filename = File::catalogFilename();
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
     File::FileType filetype;
-    char *pos = blk0->block_data;
-    auto read = [&pos](char *dest, size_t size) {
-        memcpy(dest, pos, size);
-        pos += size;
-    };
     File::catalogFileHeader header;
-    read(reinterpret_cast<char *>(&filetype), sizeof(uint32_t));
-    read(reinterpret_cast<char *>(&header), sizeof(header));
+    blk0->resetPos();
+    blk0->read(reinterpret_cast<char *>(&filetype), sizeof(uint32_t));
+    blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
 
     uint32_t newP = header.blockNum++;
     uint32_t nextP = header.tableOffset;

@@ -41,7 +41,8 @@ class Block {
     inline void setFree(const bool value) { free = value; }
     inline void setDirty(const bool value) { dirty = value; }
     inline void setPinned(const bool value) { pinned = value; }
-    inline void resetPos() { pos = 0u; }
+    inline void resetPos(uint32_t newPos = 0u) { pos = newPos; }
+    void read(char *dest, size_t size);
     void readFile();
     void writeFile();
     void createFile();

@@ -9,7 +9,12 @@ namespace BufferManager {
 
 Block::Block(const BlockID &id)
     : filename(id.first), offset(id.second), free(true), dirty(false),
-      pinned(false) {}
+      pinned(false), pos(0) {}
+
+void Block::read(char *dest, size_t size) {
+    std::memcpy(dest, block_data + pos, size);
+    pos += size;
+};
 
 void Block::readFile() {
     std::ifstream ifs;
