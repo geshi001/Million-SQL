@@ -12,6 +12,8 @@ namespace CM = CatalogManager;
 void init();
 void exit();
 
-void loadTable(const std::string &tableName);
+void createTable(const std::string &);
+void insertRecord(const std::string &, const Record &);
+void loadTable(const std::string &);
 
 } // namespace RecordManager

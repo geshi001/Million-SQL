@@ -10,4 +10,12 @@ uint32_t recordBinarySize(const Schema &schema) {
     return cnt;
 }
 
+uint32_t recordBinarySize(const Record &record) {
+    uint32_t cnt = sizeof(uint32_t); // pointer to next record
+    for (auto &value : record) {
+        cnt += value.size();
+    }
+    return cnt;
+}
+
 } // namespace RecordManager
