@@ -26,9 +26,9 @@ struct catalogFileHeader {
 struct tableFileHeader {
     uint32_t filetype;
     uint32_t blockNum;
-    uint32_t recordSize;
     uint32_t beginOffset;
     uint32_t deletedOffset;
+    uint32_t availableOffset;
 };
 
 }; // namespace File
