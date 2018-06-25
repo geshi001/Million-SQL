@@ -15,6 +15,7 @@ void exit();
 void createTable(const std::string &);
 void dropTable(const std::string &);
 void insertRecord(const std::string &, const Record &);
+void deleteAllRecords(const std::string &);
 std::vector<Record> loadTable(std::shared_ptr<Schema>);
 
 } // namespace RecordManager

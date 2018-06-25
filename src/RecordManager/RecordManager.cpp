@@ -114,7 +114,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
         header.beginOffset = newPos;
         uint32_t size = recordBinarySize(*schema);
         if (inBlkOff + size >= BM::BLOCK_SIZE) {
-            header.availableOffset = (blkOff + 1) * BM::BLOCK_SIZE;
+            header.availableOffset = header.blockNum++ * BM::BLOCK_SIZE;
         } else {
             header.availableOffset = newPos + size;
         }
@@ -122,6 +122,26 @@ void insertRecord(const std::string &tableName, const Record &record) {
                        reinterpret_cast<const char *>(&header), 0,
                        sizeof(header));
     }
+}
+
+void deleteAllRecords(const std::string &tableName) {
+    auto filename = File::tableFilename(tableName);
+    if (!BM::fileExists(filename)) {
+        throw SQLError("table \'" + tableName + "\' not exist");
+    }
+    BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
+    blk0->resetPos();
+    File::tableFileHeader header;
+    blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
+    if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
+        throw std::runtime_error("file type not compatible");
+    }
+    header.blockNum = 1;
+    header.beginOffset = 0;
+    header.deletedOffset = 0;
+    header.availableOffset = BM::BLOCK_SIZE;
+    BM::writeBlock(BM::makeID(filename, 0),
+                   reinterpret_cast<const char *>(&header), 0, sizeof(header));
 }
 
 std::vector<Record> loadTable(std::shared_ptr<Schema> schema) {
