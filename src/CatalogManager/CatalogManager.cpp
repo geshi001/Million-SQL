@@ -2,16 +2,16 @@
 #include <CatalogManager/CatalogManager.h>
 #include <CatalogManager/TableSpec.h>
 #include <list>
-#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 
 namespace CatalogManager {
 
 std::list<std::shared_ptr<Schema>> schemas;
-std::map<std::string, std::shared_ptr<Schema>> mapSchemas;
-std::map<std::string, uint32_t> mapSchemaOffsets;
+std::unordered_map<std::string, std::shared_ptr<Schema>> mapSchemas;
+std::unordered_map<std::string, uint32_t> mapSchemaOffsets;
 
 void init() {
     schemas.clear();
@@ -111,5 +111,14 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
 }
 
 void exit() {}
+
+std::shared_ptr<Schema> getSchema(const std::string &tableName) {
+    auto i = mapSchemas.find(tableName);
+    if (i != mapSchemas.end()) {
+        return i->second;
+    } else {
+        throw SQLError("cannot find table \'" + tableName + "\'");
+    }
+}
 
 } // namespace CatalogManager

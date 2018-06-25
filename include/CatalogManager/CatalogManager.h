@@ -18,4 +18,6 @@ void exit();
 void createTable(const std::string &, const std::string &,
                  const std::vector<Attribute> &);
 
+std::shared_ptr<Schema> getSchema(const std::string &);
+
 } // namespace CatalogManager
