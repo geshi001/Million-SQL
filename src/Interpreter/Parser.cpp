@@ -65,7 +65,7 @@ PtrStmt Parser::parseDrop() {
             return parseDropIndex();
         }
     }
-    raise("cannot parse create statement");
+    raise("cannot parse drop statement");
 }
 
 PtrStmt Parser::parseCreateTable() {
@@ -351,7 +351,7 @@ std::string Parser::getString() {
 
 void Parser::raise(const std::string &what_arg) {
     if (p == tokens.end()) {
-        throw ParseError(what_arg + "at end of input", -1, -1);
+        throw ParseError(what_arg + " at end of input", -1, -1);
     } else {
         throw ParseError(what_arg, p->getNl(), p->getNc());
     }
