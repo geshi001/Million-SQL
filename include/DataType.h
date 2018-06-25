@@ -11,6 +11,17 @@ struct Attribute {
     size_t charCnt;
     bool isUnique;
     std::string name;
+
+    size_t size() const {
+        switch (type) {
+        case ValueType::INT:
+            return sizeof(int);
+        case ValueType::FLOAT:
+            return sizeof(float);
+        case ValueType::CHAR:
+            return charCnt;
+        }
+    }
 };
 
 struct Value {
