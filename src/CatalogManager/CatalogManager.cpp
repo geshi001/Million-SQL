@@ -23,10 +23,8 @@ void init() {
         BM::createFile(filename, File::FileType::CATALOG);
     }
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
-    File::FileType filetype;
     blk0->resetPos();
     File::catalogFileHeader header;
-    blk0->read(reinterpret_cast<char *>(&filetype), sizeof(uint32_t));
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
 
     uint32_t currP = header.tableOffset, nextP = 0;
@@ -70,10 +68,8 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
 
     auto filename = File::catalogFilename();
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
-    File::FileType filetype;
     File::catalogFileHeader header;
     blk0->resetPos();
-    blk0->read(reinterpret_cast<char *>(&filetype), sizeof(uint32_t));
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
 
     uint32_t newP = header.blockNum++;
@@ -91,7 +87,6 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
         BM::writeBlock(BM::makeID(filename, newP), src, offsetP, size);
         offsetP += size;
     };
-    write0(reinterpret_cast<const char *>(&filetype), sizeof(uint32_t));
     write0(reinterpret_cast<const char *>(&header), sizeof(header));
 
     writeP(reinterpret_cast<const char *>(&nextP), sizeof(uint32_t));

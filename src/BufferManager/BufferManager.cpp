@@ -56,12 +56,24 @@ void createFile(const std::string &filename, const File::FileType filetype) {
     switch (filetype) {
     case File::FileType::CATALOG: {
         File::catalogFileHeader header;
+        header.filetype = static_cast<uint32_t>(filetype);
         header.blockNum = 1;
         header.tableOffset = 0;
         header.indexOffset = 0;
-        write(reinterpret_cast<const char *>(&filetype), sizeof(uint32_t));
         write(reinterpret_cast<const char *>(&header), sizeof(header));
-        write(empty_buffer, BLOCK_SIZE - sizeof(header) - sizeof(uint32_t));
+        write(empty_buffer, BLOCK_SIZE - sizeof(header));
+        break;
+    }
+    case File::FileType::TABLE: {
+        File::tableFileHeader header;
+        header.filetype = static_cast<uint32_t>(filetype);
+        header.blockNum = 1;
+        header.recordSize = 0;
+        header.beginOffset = 0;
+        header.deletedOffset = 0;
+        write(reinterpret_cast<const char *>(&header), sizeof(header));
+        write(empty_buffer, BLOCK_SIZE - sizeof(header));
+        break;
     }
     }
     cache.push_front(blkPtr);
