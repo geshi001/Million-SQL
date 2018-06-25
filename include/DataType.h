@@ -1,6 +1,7 @@
 #pragma once
 #include <SQLError.h>
 #include <cstring>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,10 @@ struct Value {
         float fval;
         char cval[256];
     };
+
+    Value() = default;
+    Value(const Attribute &attribute)
+        : type(attribute.type), charCnt(attribute.charCnt) {}
 
     const char *val() const {
         switch (type) {
@@ -70,10 +75,13 @@ struct Value {
         switch (type) {
         case ValueType::INT:
             return std::to_string(ival);
-        case ValueType::FLOAT:
-            return std::to_string(fval);
+        case ValueType::FLOAT: {
+            std::stringstream ss;
+            ss << fval;
+            return ss.str();
+        }
         case ValueType::CHAR:
-            return std::string(cval);
+            return "\'" + std::string(cval) + "\'";
         }
     }
 
