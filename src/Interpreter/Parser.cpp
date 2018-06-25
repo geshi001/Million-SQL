@@ -313,6 +313,8 @@ Value Parser::getValue() {
             auto str = p++->getValue().strval;
             if (str.length() >= 1 && str.length() <= 255) {
                 value.type = ValueType::CHAR;
+                value.charCnt = str.length();
+                std::memset(value.cval, 0, 256);
                 std::strcpy(value.cval, str.c_str());
                 return value;
             } else {
