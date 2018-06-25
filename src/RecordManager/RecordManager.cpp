@@ -65,8 +65,11 @@ void insertRecord(const std::string &tableName, const Record &record) {
                 throw SQLError("value type mismatch");
             }
             if (record[i].type == ValueType::CHAR &&
-                record[i].size() >= schema->attributes[i].size()) {
-                throw SQLError("string too long");
+                record[i].size() > schema->attributes[i].size()) {
+                throw SQLError("string " + record[i].toString() +
+                               " is too long to fit in char(" +
+                               std::to_string(schema->attributes[i].size()) +
+                               ")");
             }
             write(record[i].val(), schema->attributes[i].size());
         }
@@ -100,8 +103,11 @@ void insertRecord(const std::string &tableName, const Record &record) {
                 throw SQLError("value type mismatch");
             }
             if (record[i].type == ValueType::CHAR &&
-                record[i].size() >= schema->attributes[i].size()) {
-                throw SQLError("string too long");
+                record[i].size() > schema->attributes[i].size()) {
+                throw SQLError("string " + record[i].toString() +
+                               " is too long to fit in char(" +
+                               std::to_string(schema->attributes[i].size()) +
+                               ")");
             }
             write(record[i].val(), schema->attributes[i].size());
         }
