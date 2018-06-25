@@ -11,14 +11,18 @@ void CreateTableStatement::setTableName(const std::string &name) {
 }
 
 void CreateTableStatement::addAttribute(const Attribute &attr) {
-    attributes.push_back(attr);
+    if (attributes.size() < 32) {
+        attributes.push_back(attr);
+    } else {
+        throw SQLError("tables with more than 32 attributes are not supported");
+    }
 }
 
 void CreateTableStatement::addPrimaryKey(const std::string &id) {
     if (primaryKey.empty()) {
         primaryKey = id;
     } else {
-        throw SQLError("multiple primary keys");
+        throw SQLError("multiple primary keys are declared");
     }
 }
 

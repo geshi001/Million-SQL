@@ -105,6 +105,11 @@ Token Lexer::nextToken() {
         }
         std::string str(p, e);
         skipChars(n);
+        if (n >= 64) {
+            throw ParseError(
+                "identifiers with more than 63 characters are not supported",
+                onl, onc);
+        }
         if (str == "and") {
             return Token(Keyword::AND, onl, onc);
         } else if (str == "char") {
