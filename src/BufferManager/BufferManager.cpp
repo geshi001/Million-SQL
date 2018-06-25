@@ -1,4 +1,5 @@
 #include <BufferManager/BufferManager.h>
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -80,6 +81,8 @@ void createFile(const std::string &filename, const File::FileType filetype) {
     blkPtr->createFile();
     blkPtr->setDirty(false);
 }
+
+void deleteFile(const std::string &filename) { std::remove(filename.c_str()); }
 
 PtrBlock readBlock(const BlockID &id) {
     for (auto iter = cache.begin(); iter != cache.end(); ++iter) {
