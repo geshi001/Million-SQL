@@ -10,9 +10,6 @@
 
 namespace CatalogManager {
 
-#define DELETED_MARK 0x80000000U
-#define DELETED_MASK 0x7FFFFFFFU
-
 std::list<std::shared_ptr<Schema>> schemas;
 std::unordered_map<std::string, std::shared_ptr<Schema>> mapSchemas;
 std::unordered_map<std::string, uint32_t> mapSchemaOffsets;

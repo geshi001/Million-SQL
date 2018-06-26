@@ -70,7 +70,6 @@ void createFile(const std::string &filename, const File::FileType filetype) {
         header.filetype = static_cast<uint32_t>(filetype);
         header.blockNum = 1;
         header.beginOffset = 0;
-        header.deletedOffset = 0;
         header.availableOffset = BLOCK_SIZE;
         write(reinterpret_cast<const char *>(&header), sizeof(header));
         write(empty_buffer, BLOCK_SIZE - sizeof(header));

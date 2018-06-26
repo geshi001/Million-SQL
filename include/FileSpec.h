@@ -16,6 +16,9 @@ inline std::string indexFilename(const std::string &name) {
     return "dbms/minisql_" + name + ".idx";
 }
 
+#define DELETED_MARK 0x80000000U
+#define DELETED_MASK 0x7FFFFFFFU
+
 struct catalogFileHeader {
     uint32_t filetype;
     uint32_t blockNum;
@@ -27,7 +30,6 @@ struct tableFileHeader {
     uint32_t filetype;
     uint32_t blockNum;
     uint32_t beginOffset;
-    uint32_t deletedOffset;
     uint32_t availableOffset;
 };
 
