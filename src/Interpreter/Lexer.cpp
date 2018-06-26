@@ -20,6 +20,7 @@ bool Lexer::nextLine() {
     if (!std::getline(is, currLine)) {
         return false;
     }
+    currLine += '\n';
     nl++;
     nc = 1;
     p = currLine.begin();

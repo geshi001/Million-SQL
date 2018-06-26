@@ -11,19 +11,33 @@ void REPL::run() {
     running = true;
     while (running) {
         std::cout << "MillionSQL> ";
-        if (!std::getline(std::cin, line)) {
-            running = false;
+        bool reading = true;
+        std::stringstream ss;
+        while (reading) {
+            if (!std::getline(std::cin, line)) {
+                running = false;
+            } else if (line.find_first_not_of(' ') == std::string::npos) {
+                reading = false;
+            } else {
+                ss << line << std::endl;
+                if (line.find(';') != std::string::npos)
+                    reading = false;
+                else
+                    std::cout << "         -> ";
+            }
         }
-        std::istringstream iss(line + "\n");
+        if (running == false) {
+            break;
+        }
+        ss << std::endl;
         try {
-            Parser parser(iss);
+            Parser parser(ss);
             auto stmts = parser.parse();
             for (auto pStmt : stmts) {
+                auto quitStmt = dynamic_cast<AST::QuitStatement *>(pStmt.get());
                 auto execStmt =
                     dynamic_cast<AST::ExecfileStatement *>(pStmt.get());
-                if (!execStmt) { // not 'execfile', invoke API
-                    pStmt->callAPI();
-                } else {
+                if (execStmt) {
                     auto filePath = execStmt->getFilePath();
                     std::ifstream ifs(filePath);
                     if (ifs.fail()) {
@@ -45,12 +59,19 @@ void REPL::run() {
                             fileStmt->callAPI();
                         }
                     }
+                } else if (quitStmt) {
+                    running = false;
+                } else { // neither 'quit' nor 'execfile'
+                    pStmt->callAPI();
                 }
+            }
+            if (!running) {
+                break;
             }
         } catch (std::exception &e) {
             std::cout << e.what() << std::endl;
         }
     }
-}
+} // namespace Interpreter
 
 } // namespace Interpreter

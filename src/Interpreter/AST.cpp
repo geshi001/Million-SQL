@@ -120,10 +120,12 @@ void DeleteStatement::callAPI() const {
     API::deleteFrom(tableName, predicates);
 }
 
-void QuitStatement::callAPI() const { API::quit(); }
+void QuitStatement::callAPI() const {
+    throw std::logic_error("no API for 'quit'");
+}
 
 void ExecfileStatement::callAPI() const {
-    throw SQLError("no API for execfile");
+    throw std::logic_error("no API for 'execfile'");
 }
 
 } // namespace AST

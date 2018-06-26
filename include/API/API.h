@@ -25,5 +25,4 @@ class API {
 
     static void deleteFrom(const std::string &tableName,
                            const std::vector<Predicate> &predicates);
-    static void quit();
 };

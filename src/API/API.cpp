@@ -47,36 +47,3 @@ void API::deleteFrom(const std::string &tableName,
         RM::deleteRecords(schema, predicates);
     }
 }
-
-void API::quit() {
-    for (auto schema : CM::schemas) {
-        std::cout << schema->tableName << ":" << std::endl;
-        for (auto attribute : schema->attributes) {
-            auto &attr = attribute;
-            std::cout << "    " << attr.name;
-            switch (attr.type) {
-            case ValueType::INT: {
-                std::cout << " int";
-                break;
-            }
-            case ValueType::FLOAT: {
-                std::cout << " float";
-                break;
-            }
-            case ValueType::CHAR: {
-                std::cout << " char(" << attr.charCnt << ")";
-                break;
-            }
-            }
-            if (attr.isUnique) {
-                std::cout << " unique";
-            }
-            if (schema->primaryKey == attr.name) {
-                std::cout << " primary key";
-            }
-            std::cout << std::endl;
-        }
-    }
-
-    throw "quiting";
-}
