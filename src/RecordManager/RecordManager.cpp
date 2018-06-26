@@ -154,6 +154,56 @@ void deleteRecords(const std::string &tableName,
     }
 }
 
+void deleteRecords(std::shared_ptr<Schema> schema,
+                   const std::vector<Predicate> &predicates) {
+    auto &tableName = schema->tableName;
+    auto filename = File::tableFilename(tableName);
+    if (!BM::fileExists(filename)) {
+        throw SQLError("table \'" + tableName + "\' not exist");
+    }
+    BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
+    blk0->resetPos();
+    File::tableFileHeader header;
+    blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
+    if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
+        throw std::runtime_error("file type not compatible");
+    }
+    uint32_t pos = header.beginOffset;
+    while (pos != 0) {
+        uint32_t blkOff = BM::blockOffset(pos);
+        uint32_t inBlkOff = BM::inBlockOffset(pos);
+        BM::PtrBlock blk = BM::readBlock(BM::makeID(filename, blkOff));
+        blk->resetPos(inBlkOff);
+        Record record;
+        blk->read(reinterpret_cast<char *>(&pos), sizeof(uint32_t));
+        if (pos & DELETED_MARK) {
+            pos &= DELETED_MASK;
+            continue;
+        }
+        for (auto &attribute : schema->attributes) {
+            Value value(attribute);
+            if (value.type == ValueType::CHAR) {
+                std::memset(value.val(), 0, 256);
+            }
+            blk->read(value.val(), value.size());
+            record.emplace_back(std::move(value));
+        }
+        bool chosen = true;
+        for (auto predicate : predicates) {
+            chosen &= satisfy(schema, predicate, record);
+            if (!chosen) {
+                break;
+            }
+        }
+        if (chosen) {
+            uint32_t marked = pos | DELETED_MARK;
+            BM::writeBlock(BM::makeID(filename, blkOff),
+                           reinterpret_cast<const char *>(&marked), inBlkOff,
+                           sizeof(uint32_t));
+        }
+    }
+}
+
 std::vector<Record> selectRecords(std::shared_ptr<Schema> schema,
                                   const std::vector<Predicate> &predicates) {
     auto &tableName = schema->tableName;

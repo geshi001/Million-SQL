@@ -30,7 +30,6 @@ std::vector<Record> API::select(const std::vector<std::string> &attributes,
     auto schema = CM::getSchema(tableName);
     auto records =
         RM::project(RM::selectRecords(schema, predicates), schema, attributes);
-
     return records;
 }
 
@@ -43,6 +42,9 @@ void API::deleteFrom(const std::string &tableName,
                      const std::vector<Predicate> &predicates) {
     if (predicates.empty()) {
         RM::deleteAllRecords(tableName);
+    } else {
+        auto schema = CM::getSchema(tableName);
+        RM::deleteRecords(schema, predicates);
     }
 }
 
