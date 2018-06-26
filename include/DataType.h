@@ -98,6 +98,25 @@ struct Value {
             return std::strcmp(cval, rhs.cval) < 0;
         }
     }
+
+    bool operator==(const Value &rhs) const {
+        if (type != rhs.type) {
+            throw SQLError("cannot compare values with different types");
+        }
+        switch (type) {
+        case ValueType::INT:
+            return ival == rhs.ival;
+        case ValueType::FLOAT:
+            return fval == rhs.fval;
+        case ValueType::CHAR:
+            return std::strcmp(cval, rhs.cval) == 0;
+        }
+    }
+
+    bool operator!=(const Value &rhs) const { return !(*this == rhs); }
+    bool operator>(const Value &rhs) const { return rhs < *this; }
+    bool operator<=(const Value &rhs) const { return !(*this > rhs); }
+    bool operator>=(const Value &rhs) const { return !(*this < rhs); }
 };
 
 enum class OpType { EQ, NE, LT, LEQ, GT, GEQ };
