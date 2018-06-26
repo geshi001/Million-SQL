@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Interpreter/AST.h>
 #include <Interpreter/Lexer.h>
 #include <Interpreter/ParseError.h>

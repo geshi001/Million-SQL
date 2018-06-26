@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
-#include <iostream>
 #include <list>
 #include <sys/stat.h>
 

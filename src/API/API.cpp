@@ -1,7 +1,6 @@
 #include <API/API.h>
 #include <CatalogManager/CatalogManager.h>
 #include <RecordManager/RecordManager.h>
-#include <iostream>
 
 namespace CM = CatalogManager;
 namespace RM = RecordManager;
