@@ -1,6 +1,7 @@
 #include <API/API.h>
 #include <Interpreter/AST.h>
 #include <SQLError.h>
+#include <iostream>
 #include <stdexcept>
 
 namespace Interpreter {
@@ -94,7 +95,23 @@ void CreateIndexStatement::callAPI() const {
 void DropIndexStatement::callAPI() const { API::dropIndex(indexName); }
 
 void SelectStatement::callAPI() const {
-    API::select(attributes, tableName, predicates);
+    auto records = API::select(attributes, tableName, predicates);
+    for (auto record : records) {
+        int size = record.size();
+        if (size > 1) {
+            std::cout << "(";
+        }
+        for (int i = 0; i < size; ++i) {
+            std::cout << record[i].toString();
+            if (i != size - 1) {
+                std::cout << ", ";
+            }
+        }
+        if (size > 1) {
+            std::cout << ")";
+        }
+        std::cout << std::endl;
+    }
 }
 
 void InsertStatement::callAPI() const { API::insert(tableName, values); }

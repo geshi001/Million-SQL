@@ -15,9 +15,10 @@ class API {
 
     static void dropIndex(const std::string &indexName);
 
-    static void select(const std::vector<std::string> &attributes,
-                       const std::string &tableName,
-                       const std::vector<Predicate> &predicates);
+    static std::vector<Record>
+    select(const std::vector<std::string> &attributes,
+           const std::string &tableName,
+           const std::vector<Predicate> &predicates);
 
     static void insert(const std::string &tableName,
                        const std::vector<Value> &values);
