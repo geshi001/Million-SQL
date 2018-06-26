@@ -26,6 +26,10 @@ void REPL::run() {
                 } else {
                     auto filePath = execStmt->getFilePath();
                     std::ifstream ifs(filePath);
+                    if (ifs.fail()) {
+                        throw SQLError("script \'" + filePath +
+                                       "\' does not exist");
+                    }
                     Interpreter::Parser fileParser(ifs);
                     for (auto fileStmt : fileParser.parse()) {
                         auto quitStmt =

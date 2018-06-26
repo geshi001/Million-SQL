@@ -49,7 +49,7 @@ bool Lexer::skipSpaces() {
 }
 
 Token Lexer::nextToken() {
-    if (!skipSpaces() || p == currLine.end()) {
+    if (p == currLine.end() || !skipSpaces()) {
         throw end_of_file::eof;
     }
     int onl = nl, onc = nc;
