@@ -11,8 +11,8 @@ void REPL::run() {
     running = true;
     while (running) {
         std::cout << "MillionSQL> ";
+        ss.clear();
         bool reading = true;
-        std::stringstream ss;
         while (reading) {
             if (!std::getline(std::cin, line)) {
                 running = false;

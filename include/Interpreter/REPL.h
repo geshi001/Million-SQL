@@ -9,6 +9,7 @@ class REPL final {
     REPL() = default;
     ~REPL() = default;
     std::string line;
+    std::stringstream ss;
     bool running;
 
   public:
