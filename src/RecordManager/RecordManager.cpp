@@ -31,7 +31,8 @@ static bool satisfy(std::shared_ptr<Schema> schema, const Predicate &predicate,
             }
         }
     }
-    throw SQLError("cannot find attribute \'" + predicate.attrName + "\'");
+    throw SQLError("cannot find attribute \'" + predicate.attrName +
+                   "\' in table \'" + schema->tableName + "\'");
 }
 
 void createTable(const std::string &tableName) {
