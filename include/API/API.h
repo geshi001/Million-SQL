@@ -1,5 +1,6 @@
 #pragma once
 #include <DataType.h>
+#include <memory>
 
 class API {
   public:
@@ -15,7 +16,7 @@ class API {
 
     static void dropIndex(const std::string &indexName);
 
-    static std::vector<Record>
+    static std::pair<std::shared_ptr<Schema>, std::vector<Record>>
     select(const std::vector<std::string> &attributes,
            const std::string &tableName,
            const std::vector<Predicate> &predicates);

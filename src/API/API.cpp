@@ -23,13 +23,14 @@ void API::createIndex(const std::string &indexName,
 
 void API::dropIndex(const std::string &indexName) {}
 
-std::vector<Record> API::select(const std::vector<std::string> &attributes,
-                                const std::string &tableName,
-                                const std::vector<Predicate> &predicates) {
+std::pair<std::shared_ptr<Schema>, std::vector<Record>>
+API::select(const std::vector<std::string> &attributes,
+            const std::string &tableName,
+            const std::vector<Predicate> &predicates) {
     auto schema = CM::getSchema(tableName);
     auto records =
         RM::project(RM::selectRecords(schema, predicates), schema, attributes);
-    return records;
+    return std::make_pair(schema, records);
 }
 
 void API::insert(const std::string &tableName,

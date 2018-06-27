@@ -1,6 +1,8 @@
 #include <API/API.h>
 #include <Interpreter/AST.h>
 #include <SQLError.h>
+#include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -103,26 +105,57 @@ void DropIndexStatement::callAPI() const {
 }
 
 void SelectStatement::callAPI() const {
-    auto records = API::select(attributes, tableName, predicates);
+    auto results = API::select(attributes, tableName, predicates);
+    auto &schema = results.first;
+    auto &records = results.second;
     if (records.empty()) {
         std::cout << "No records are selected." << std::endl;
     } else {
-        for (auto record : records) {
+        auto attrNames(attributes);
+        if (attrNames.empty()) {
+            std::transform(schema->attributes.begin(), schema->attributes.end(),
+                           std::back_inserter(attrNames),
+                           [](const Attribute &attribute) -> std::string {
+                               return attribute.name;
+                           });
+        }
+        int num = attrNames.size();
+        std::vector<size_t> widths(num, std::numeric_limits<size_t>::min());
+        for (int i = 0; i < num; i++) {
+            widths[i] = std::max(widths[i], attrNames[i].size());
+        }
+        for (auto &record : records) {
+            for (int i = 0; i < num; i++) {
+                widths[i] = std::max(widths[i], record[i].toString().size());
+            }
+        }
+        auto outputEdge = [&]() {
+            std::cout << "+";
+            for (int i = 0; i < num; i++) {
+                std::cout << std::string(widths[i] + 2, '-');
+                std::cout << "+";
+            }
+            std::cout << std::endl;
+        };
+        outputEdge();
+        std::cout << std::left;
+        std::cout << "|";
+        for (int i = 0; i < num; i++) {
+            std::cout << " " << std::setw(widths[i]) << attrNames[i] << " |";
+        }
+        std::cout << std::endl;
+        outputEdge();
+        std::cout << std::right;
+        for (auto &record : records) {
             int size = record.size();
-            if (size > 1) {
-                std::cout << "(";
-            }
-            for (int i = 0; i < size; ++i) {
-                std::cout << record[i].toString();
-                if (i != size - 1) {
-                    std::cout << ", ";
-                }
-            }
-            if (size > 1) {
-                std::cout << ")";
+            std::cout << "|";
+            for (int i = 0; i < num; i++) {
+                std::cout << " " << std::setw(widths[i]) << record[i].toString()
+                          << " |";
             }
             std::cout << std::endl;
         }
+        outputEdge();
     }
 }
 
