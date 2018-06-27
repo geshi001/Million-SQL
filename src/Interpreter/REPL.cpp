@@ -7,10 +7,13 @@
 
 namespace Interpreter {
 
+const char *PROMPT_MAIN = "\033[32mMillionSQL> \033[0m";
+const char *PROMPT_NEXT = "\033[32m         -> \033[0m";
+
 void REPL::run() {
     running = true;
     while (running) {
-        std::cout << "MillionSQL> ";
+        std::cout << PROMPT_MAIN;
         ss.clear();
         bool reading = true;
         while (reading) {
@@ -23,7 +26,7 @@ void REPL::run() {
                 if (line.find(';') != std::string::npos)
                     reading = false;
                 else
-                    std::cout << "         -> ";
+                    std::cout << PROMPT_NEXT;
             }
         }
         if (running == false) {
