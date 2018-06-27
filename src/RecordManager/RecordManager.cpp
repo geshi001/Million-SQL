@@ -105,7 +105,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
                    reinterpret_cast<const char *>(&header), 0, sizeof(header));
 }
 
-void deleteAllRecords(const std::string &tableName) {
+int deleteAllRecords(const std::string &tableName) {
     auto filename = File::tableFilename(tableName);
     if (!BM::fileExists(filename)) {
         throw SQLError("table \'" + tableName + "\' not exist");
@@ -124,8 +124,8 @@ void deleteAllRecords(const std::string &tableName) {
                    reinterpret_cast<const char *>(&header), 0, sizeof(header));
 }
 
-void deleteRecords(const std::string &tableName,
-                   const std::vector<uint32_t> &offsets) {
+int deleteRecords(const std::string &tableName,
+                  const std::vector<uint32_t> &offsets) {
     auto filename = File::tableFilename(tableName);
     if (!BM::fileExists(filename)) {
         throw SQLError("table \'" + tableName + "\' not exist");
@@ -152,10 +152,11 @@ void deleteRecords(const std::string &tableName,
                        reinterpret_cast<const char *>(&mark), inBlkOff,
                        sizeof(uint32_t));
     }
+    return offsets.size();
 }
 
-void deleteRecords(std::shared_ptr<Schema> schema,
-                   const std::vector<Predicate> &predicates) {
+int deleteRecords(std::shared_ptr<Schema> schema,
+                  const std::vector<Predicate> &predicates) {
     auto &tableName = schema->tableName;
     auto filename = File::tableFilename(tableName);
     if (!BM::fileExists(filename)) {
@@ -168,6 +169,7 @@ void deleteRecords(std::shared_ptr<Schema> schema,
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
         throw std::runtime_error("file type not compatible");
     }
+    int numDeleted = 0;
     uint32_t pos = header.beginOffset;
     while (pos != 0) {
         uint32_t blkOff = BM::blockOffset(pos);
@@ -196,12 +198,14 @@ void deleteRecords(std::shared_ptr<Schema> schema,
             }
         }
         if (chosen) {
+            numDeleted++;
             uint32_t marked = pos | DELETED_MARK;
             BM::writeBlock(BM::makeID(filename, blkOff),
                            reinterpret_cast<const char *>(&marked), inBlkOff,
                            sizeof(uint32_t));
         }
     }
+    return numDeleted;
 }
 
 std::vector<Record> selectRecords(std::shared_ptr<Schema> schema,

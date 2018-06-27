@@ -37,12 +37,12 @@ void API::insert(const std::string &tableName,
     RM::insertRecord(tableName, values);
 }
 
-void API::deleteFrom(const std::string &tableName,
-                     const std::vector<Predicate> &predicates) {
+int API::deleteFrom(const std::string &tableName,
+                    const std::vector<Predicate> &predicates) {
     if (predicates.empty()) {
-        RM::deleteAllRecords(tableName);
+        return RM::deleteAllRecords(tableName);
     } else {
         auto schema = CM::getSchema(tableName);
-        RM::deleteRecords(schema, predicates);
+        return RM::deleteRecords(schema, predicates);
     }
 }

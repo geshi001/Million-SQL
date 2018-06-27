@@ -15,9 +15,9 @@ void exit();
 void createTable(const std::string &);
 void dropTable(const std::string &);
 void insertRecord(const std::string &, const Record &);
-void deleteAllRecords(const std::string &);
-void deleteRecords(const std::string &, const std::vector<uint32_t> &);
-void deleteRecords(std::shared_ptr<Schema>, const std::vector<Predicate> &);
+int deleteAllRecords(const std::string &);
+int deleteRecords(const std::string &, const std::vector<uint32_t> &);
+int deleteRecords(std::shared_ptr<Schema>, const std::vector<Predicate> &);
 std::vector<Record> selectRecords(std::shared_ptr<Schema>,
                                   const std::vector<Predicate> &);
 std::vector<Record> project(const std::vector<Record> &,

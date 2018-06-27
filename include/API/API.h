@@ -23,6 +23,6 @@ class API {
     static void insert(const std::string &tableName,
                        const std::vector<Value> &values);
 
-    static void deleteFrom(const std::string &tableName,
-                           const std::vector<Predicate> &predicates);
+    static int deleteFrom(const std::string &tableName,
+                          const std::vector<Predicate> &predicates);
 };
