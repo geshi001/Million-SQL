@@ -84,40 +84,66 @@ void CreateTableStatement::callAPI() const {
         throw SQLError("primary key not specified");
     }
     API::createTable(tableName, primaryKey, attributes);
+    std::cout << "Table \'" << tableName << "\' has been created." << std::endl;
 }
 
-void DropTableStatement::callAPI() const { API::dropTable(tableName); }
+void DropTableStatement::callAPI() const {
+    API::dropTable(tableName);
+    std::cout << "Table \'" << tableName << "\' has been dropped." << std::endl;
+}
 
 void CreateIndexStatement::callAPI() const {
     API::createIndex(indexName, tableName, attrName);
+    std::cout << "Index \'" << indexName << "\' has been created." << std::endl;
 }
 
-void DropIndexStatement::callAPI() const { API::dropIndex(indexName); }
+void DropIndexStatement::callAPI() const {
+    API::dropIndex(indexName);
+    std::cout << "Index \'" << indexName << "\' has been dropped." << std::endl;
+}
 
 void SelectStatement::callAPI() const {
     auto records = API::select(attributes, tableName, predicates);
-    for (auto record : records) {
-        int size = record.size();
-        if (size > 1) {
-            std::cout << "(";
-        }
-        for (int i = 0; i < size; ++i) {
-            std::cout << record[i].toString();
-            if (i != size - 1) {
-                std::cout << ", ";
+    if (records.empty()) {
+        std::cout << "No records are selected." << std::endl;
+    } else {
+        for (auto record : records) {
+            int size = record.size();
+            if (size > 1) {
+                std::cout << "(";
             }
+            for (int i = 0; i < size; ++i) {
+                std::cout << record[i].toString();
+                if (i != size - 1) {
+                    std::cout << ", ";
+                }
+            }
+            if (size > 1) {
+                std::cout << ")";
+            }
+            std::cout << std::endl;
         }
-        if (size > 1) {
-            std::cout << ")";
-        }
-        std::cout << std::endl;
     }
 }
 
-void InsertStatement::callAPI() const { API::insert(tableName, values); }
+void InsertStatement::callAPI() const {
+    API::insert(tableName, values);
+    std::cout << "The new record has been inserted into table \'" << tableName
+              << "\'." << std::endl;
+}
 
 void DeleteStatement::callAPI() const {
-    API::deleteFrom(tableName, predicates);
+    int num = API::deleteFrom(tableName, predicates);
+    if (num < 0) {
+        throw std::logic_error("number of records cannot be negative");
+    } else if (num == 0) {
+        std::cout << "No records are deleted." << std::endl;
+    } else if (num == 1) {
+        std::cout << "1 record has been deleted." << std::endl;
+    } else {
+        std::cout << "A total of " << num;
+        std::cout << " records have been deleted." << std::endl;
+    }
 }
 
 void QuitStatement::callAPI() const {
