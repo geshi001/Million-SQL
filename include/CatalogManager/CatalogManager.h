@@ -27,6 +27,8 @@ void dropIndex(const std::string &);
 
 void checkPredicates(const std::string &, const std::vector<Predicate> &);
 
+std::string hasIndex(const std::string &, const std::string &);
+
 std::shared_ptr<Schema> getSchema(const std::string &);
 
 } // namespace CM

@@ -14,6 +14,7 @@ std::unordered_map<std::string, uint32_t> mapSchemaOffsets;
 
 std::unordered_map<std::string, Index> mapIndices;
 std::unordered_map<std::string, uint32_t> mapIndexOffsets;
+std::unordered_map<std::string, std::string> mapTableToIndex;
 
 bool hasTable(const std::string &tableName) {
     return mapSchemas.find(tableName) != mapSchemas.end();
@@ -29,6 +30,7 @@ void init() {
 
     mapIndices.clear();
     mapIndexOffsets.clear();
+    mapTableToIndex.clear();
 
     auto filename = File::catalogFilename();
     if (!BM::fileExists(filename)) {
@@ -91,6 +93,8 @@ void init() {
         index.attrName = std::string(strbuf);
         mapIndices[index.indexName] = index;
         mapIndexOffsets[index.indexName] = currP;
+        mapTableToIndex[index.attrName + "@" + index.tableName] =
+            index.indexName;
         currP = nextP;
     }
 }
@@ -203,6 +207,7 @@ void createIndex(const std::string &indexName, const std::string &tableName,
     index.tableName = tableName;
     index.attrName = attrName;
     mapIndices[indexName] = index;
+    mapTableToIndex[attrName + "@" + tableName] = indexName;
 
     auto filename = File::catalogFilename();
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
@@ -255,6 +260,8 @@ void dropIndex(const std::string &indexName) {
     nextP |= DELETED_MARK;
     BM::writeBlock(BM::makeID(filename, offset),
                    reinterpret_cast<const char *>(&nextP), 0, sizeof(uint32_t));
+    Index index = mapIndices[indexName];
+    mapTableToIndex.erase(index.attrName + "@" + index.tableName);
     mapIndices.erase(indexName);
     mapIndexOffsets.erase(indexName);
 }
@@ -279,6 +286,16 @@ void checkPredicates(const std::string &tableName,
             throw SQLError("cannot find attribute \'" + predicate.attrName +
                            "\' in table \'" + schema->tableName + "\'");
         }
+    }
+}
+
+std::string hasIndex(const std::string &tableName,
+                     const std::string &attrName) {
+    auto i = mapTableToIndex.find(attrName + "@" + tableName);
+    if (i != mapTableToIndex.end()) {
+        return i->second;
+    } else {
+        return "";
     }
 }
 
