@@ -2,13 +2,14 @@
 #include <BufferManager/BufferManager.h>
 #include <DataType.h>
 #include <FileSpec.h>
-#include <list>
+#include <unordered_map>
 
 namespace CM {
 
 constexpr size_t NAME_LENGTH = 64;
 
-extern std::list<std::shared_ptr<Schema>> schemas;
+extern std::unordered_map<std::string, std::shared_ptr<Schema>> mapSchemas;
+extern std::unordered_map<std::string, Index> mapIndices;
 
 void init();
 void exit();
