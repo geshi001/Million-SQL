@@ -201,8 +201,110 @@ void Tree::insert(const Key &key, const Off &offset) {
     }
 }
 
-void Tree::insert_in_parent(const Ptr &node0, const Key &key,
-                            const Ptr &node1) {}
+void Tree::insert_in_parent(const Ptr &nodeOffset0, const Key &key,
+                            const Ptr &nodeOffset1) {
+    BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, nodeOffset0));
+    BM::PtrBlock blk1 = BM::readBlock(BM::makeID(filename, nodeOffset1));
+    auto node0 = std::make_shared<Node>(fanout);
+    auto node1 = std::make_shared<Node>(fanout);
+    node0->readFromBlock(blk0, info);
+    node1->readFromBlock(blk1, info);
+    if (node0->isRoot()) {
+        Ptr rootOffset = header.numBlocks++;
+        auto root = std::make_shared<Node>(fanout);
+        root->numKeys = 1;
+        root->keys[0] = key;
+        root->children[0] = nodeOffset0;
+        root->children[1] = nodeOffset1;
+        node0->parent = rootOffset;
+        node1->parent = rootOffset;
+        node0->writeToBlock(BM::makeID(filename, nodeOffset0));
+        node1->writeToBlock(BM::makeID(filename, nodeOffset1));
+        root->writeToBlock(BM::makeID(filename, rootOffset));
+        this->root = rootOffset;
+        this->header.rootOffset = rootOffset;
+    } else {
+        Ptr parentOffset = node0->parent;
+        BM::PtrBlock blkP = BM::readBlock(BM::makeID(filename, parentOffset));
+        auto parent = std::make_shared<Node>(fanout);
+        parent->readFromBlock(blkP, info);
+        if (parent->numKeys < fanout - 1) {
+            int i = parent->numKeys;
+            for (; i >= 0; i--) {
+                if (parent->children[i] != nodeOffset0) {
+                    parent->children[i + 1] = parent->children[i];
+                    parent->keys[i] = parent->keys[i - 1];
+                } else {
+                    break;
+                }
+            }
+            parent->children[i + 1] = nodeOffset1;
+            parent->keys[i] = key;
+            parent->numKeys++;
+            parent->writeToBlock(BM::makeID(filename, parentOffset));
+        } else {
+            Key *tmpKeys = new Key[fanout];
+            Ptr *tmpChildren = new Ptr[fanout + 1];
+
+            std::fill_n(tmpChildren, fanout + 1, NullPtr);
+
+            std::copy(parent->keys, parent->keys + fanout - 1, tmpKeys);
+            std::copy(parent->children, parent->children + fanout, tmpChildren);
+
+            int i = fanout;
+            for (i--; i > 0; i--) {
+                if (tmpChildren[i] != nodeOffset0) {
+                    tmpChildren[i + 1] = tmpChildren[i];
+                    tmpKeys[i] = tmpKeys[i - 1];
+                } else {
+                    break;
+                }
+            }
+            tmpChildren[i + 1] = nodeOffset1;
+            tmpKeys[i] = key;
+
+            int numDiv2 = (fanout + 1) / 2;
+            int numKeys0 = numDiv2 - 1;
+            int numKeys1 = fanout - numDiv2;
+
+            auto parent0 = parent;
+            auto parent1 = std::make_shared<Node>(fanout);
+            Ptr parentOffset0 = parentOffset;
+            Ptr parentOffset1 = header.numBlocks++;
+
+            parent1->parent = parent0->parent;
+
+            parent0->numKeys = numKeys0;
+            parent1->numKeys = numKeys1;
+
+            std::fill_n(parent0->children, fanout, NullPtr);
+            std::fill_n(parent1->children, fanout, NullPtr);
+
+            std::copy(tmpKeys, tmpKeys + numKeys0, parent0->keys);
+            std::copy(tmpChildren, tmpChildren + numKeys0 + 1,
+                      parent0->children);
+            Key key1 = tmpKeys[numKeys0];
+            std::copy(tmpKeys + numKeys0 + 1, tmpKeys + fanout, parent1->keys);
+            std::copy(tmpChildren + numKeys0 + 1, tmpChildren + fanout + 1,
+                      parent1->children);
+
+            for (int i = 0; i <= numKeys1; i++) {
+                Ptr childOffset = parent1->children[i];
+                BM::PtrBlock blkT =
+                    BM::readBlock(BM::makeID(filename, childOffset));
+                auto child = std::make_shared<Node>(fanout);
+                child->readFromBlock(blkP, info);
+                child->parent = parentOffset1;
+                child->writeToBlock(BM::makeID(filename, childOffset));
+            }
+
+            delete[] tmpKeys;
+            delete[] tmpChildren;
+
+            insert_in_parent(parentOffset0, key1, parentOffset1);
+        }
+    }
+}
 
 } // namespace BPlusTree
 
