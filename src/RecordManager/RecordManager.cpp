@@ -104,6 +104,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
         write(record[i].val(), schema->attributes[i].size());
     }
     header.beginOffset = newPos;
+    header.numRecords++;
     uint32_t size = recordBinarySize(*schema);
     if (inBlkOff + size >= BM::BLOCK_SIZE) {
         header.availableOffset = header.numBlocks++ * BM::BLOCK_SIZE;
@@ -126,11 +127,14 @@ int deleteAllRecords(const std::string &tableName) {
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
         throw SysError("file type not compatible");
     }
+    int numDeleted = static_cast<int>(header.numRecords);
     header.numBlocks = 1;
     header.beginOffset = 0;
     header.availableOffset = BM::BLOCK_SIZE;
+    header.numRecords = 0;
     BM::writeBlock(BM::makeID(filename, 0),
                    reinterpret_cast<const char *>(&header), 0, sizeof(header));
+    return numDeleted;
 }
 
 int deleteRecords(const std::string &tableName,
@@ -161,6 +165,9 @@ int deleteRecords(const std::string &tableName,
                        reinterpret_cast<const char *>(&mark), inBlkOff,
                        sizeof(uint32_t));
     }
+    header.numRecords -= offsets.size();
+    BM::writeBlock(BM::makeID(filename, 0),
+                   reinterpret_cast<const char *>(&header), 0, sizeof(header));
     return offsets.size();
 }
 
@@ -214,6 +221,9 @@ int deleteRecords(std::shared_ptr<Schema> schema,
                            sizeof(uint32_t));
         }
     }
+    header.numRecords -= numDeleted;
+    BM::writeBlock(BM::makeID(filename, 0),
+                   reinterpret_cast<const char *>(&header), 0, sizeof(header));
     return numDeleted;
 }
 

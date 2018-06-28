@@ -31,6 +31,7 @@ struct tableFileHeader {
     uint32_t numBlocks;
     uint32_t beginOffset;
     uint32_t availableOffset;
+    uint32_t numRecords;
 };
 
 struct indexFileHeader {
