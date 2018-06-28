@@ -49,7 +49,7 @@ void createTable(const std::string &tableName) {
     if (!hasTable(tableName)) {
         BM::createFile(File::tableFilename(tableName), File::FileType::TABLE);
     } else {
-        throw SQLError("table \'" + tableName + "\' already exists");
+        throw Warning("file for table \'" + tableName + "\' already exists");
     }
 }
 
