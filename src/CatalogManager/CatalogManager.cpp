@@ -10,7 +10,6 @@
 
 namespace CM {
 
-std::list<std::shared_ptr<Schema>> schemas;
 std::unordered_map<std::string, std::shared_ptr<Schema>> mapSchemas;
 std::unordered_map<std::string, uint32_t> mapSchemaOffsets;
 
@@ -19,7 +18,6 @@ bool hasTable(const std::string &tableName) {
 }
 
 void init() {
-    schemas.clear();
     mapSchemas.clear();
     mapSchemaOffsets.clear();
 
@@ -59,7 +57,6 @@ void init() {
                 decodeProperties(bin);
             schema->attributes.push_back(attribute);
         }
-        schemas.push_back(schema);
         mapSchemas[schema->tableName] = schema;
         mapSchemaOffsets[schema->tableName] = currP;
         currP = nextP;
@@ -75,7 +72,6 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
     schema->tableName = tableName;
     schema->primaryKey = primaryKey;
     schema->attributes = attributes;
-    schemas.push_front(schema);
     mapSchemas[tableName] = schema;
 
     auto filename = File::catalogFilename();
@@ -136,7 +132,6 @@ void dropTable(const std::string &tableName) {
     nextP |= DELETED_MARK;
     BM::writeBlock(BM::makeID(filename, offset),
                    reinterpret_cast<const char *>(&nextP), 0, sizeof(uint32_t));
-    schemas.erase(std::find(schemas.begin(), schemas.end(), schema));
     mapSchemas.erase(tableName);
     mapSchemaOffsets.erase(tableName);
 }
