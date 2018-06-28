@@ -1,5 +1,5 @@
+#include <Error.h>
 #include <Interpreter/REPL.h>
-#include <SQLError.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>

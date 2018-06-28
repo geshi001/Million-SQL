@@ -1,5 +1,5 @@
 #pragma once
-#include <SQLError.h>
+#include <Error.h>
 #include <cstring>
 #include <sstream>
 #include <string>

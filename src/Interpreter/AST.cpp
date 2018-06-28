@@ -1,6 +1,6 @@
 #include <API/API.h>
+#include <Error.h>
 #include <Interpreter/AST.h>
-#include <SQLError.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>

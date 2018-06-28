@@ -1,8 +1,8 @@
 #include <CatalogManager/CatalogManager.h>
+#include <Error.h>
 #include <FileSpec.h>
 #include <RecordManager/RecordManager.h>
 #include <RecordManager/RecordSpec.h>
-#include <SysError.h>
 
 namespace RM {
 
