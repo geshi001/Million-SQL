@@ -8,6 +8,8 @@ void API::createTable(const std::string &tableName,
                       const std::vector<Attribute> &attributes) {
     CM::createTable(tableName, primaryKey, attributes);
     RM::createTable(tableName);
+    createIndex(File::defaultIndexName(tableName, primaryKey), tableName,
+                primaryKey);
 }
 
 void API::dropTable(const std::string &tableName) {

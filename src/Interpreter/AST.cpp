@@ -1,5 +1,6 @@
 #include <API/API.h>
 #include <Error.h>
+#include <FileSpec.h>
 #include <Interpreter/AST.h>
 #include <algorithm>
 #include <iomanip>
@@ -87,6 +88,9 @@ void CreateTableStatement::callAPI() const {
     }
     API::createTable(tableName, primaryKey, attributes);
     std::cout << "Table \'" << tableName << "\' has been created." << std::endl;
+    std::cout << "Index \'" << File::defaultIndexName(tableName, primaryKey)
+              << "\' has been automatically created on \'" << primaryKey
+              << "\'." << std::endl;
 }
 
 void DropTableStatement::callAPI() const {

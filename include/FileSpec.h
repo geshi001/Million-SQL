@@ -16,6 +16,11 @@ inline std::string indexFilename(const std::string &name) {
     return "dbms/minisql_" + name + ".idx";
 }
 
+inline std::string defaultIndexName(const std::string &tableName,
+                                    const std::string &primaryKey) {
+    return tableName + primaryKey + "idx";
+}
+
 #define DELETED_MARK 0x80000000U
 #define DELETED_MASK 0x7FFFFFFFU
 
