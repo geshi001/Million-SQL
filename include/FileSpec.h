@@ -33,4 +33,11 @@ struct tableFileHeader {
     uint32_t availableOffset;
 };
 
+struct indexFileHeader {
+    uint32_t filetype;
+    uint32_t blockNum;
+    uint32_t rootOffset;
+    uint32_t availableOffset;
+};
+
 }; // namespace File

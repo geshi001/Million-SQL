@@ -74,6 +74,16 @@ void createFile(const std::string &filename, const File::FileType filetype) {
         write(empty_buffer, BLOCK_SIZE - sizeof(header));
         break;
     }
+    case File::FileType::INDEX: {
+        File::indexFileHeader header;
+        header.filetype = static_cast<uint32_t>(filetype);
+        header.blockNum = 1;
+        header.rootOffset = 0;
+        header.availableOffset = BLOCK_SIZE;
+        write(reinterpret_cast<const char *>(&header), sizeof(header));
+        write(empty_buffer, BLOCK_SIZE - sizeof(header));
+        break;
+    }
     }
     cache.push_front(blkPtr);
     blkPtr->createFile();
