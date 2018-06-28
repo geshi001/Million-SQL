@@ -112,7 +112,7 @@ void createTable(const std::string &tableName, const std::string &primaryKey,
     blk0->resetPos();
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
 
-    uint32_t newP = header.blockNum++;
+    uint32_t newP = header.numBlocks++;
     uint32_t nextP = header.tableOffset;
     uint32_t numAttrs = attributes.size();
     header.tableOffset = newP;
@@ -184,7 +184,7 @@ void createIndex(const std::string &indexName, const std::string &tableName,
     blk0->resetPos();
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
 
-    uint32_t newP = header.blockNum++;
+    uint32_t newP = header.numBlocks++;
     uint32_t nextP = header.indexOffset;
     header.indexOffset = newP;
     mapIndexOffsets[indexName] = newP;

@@ -57,7 +57,7 @@ void createFile(const std::string &filename, const File::FileType filetype) {
     case File::FileType::CATALOG: {
         File::catalogFileHeader header;
         header.filetype = static_cast<uint32_t>(filetype);
-        header.blockNum = 1;
+        header.numBlocks = 1;
         header.tableOffset = 0;
         header.indexOffset = 0;
         write(reinterpret_cast<const char *>(&header), sizeof(header));
@@ -67,7 +67,7 @@ void createFile(const std::string &filename, const File::FileType filetype) {
     case File::FileType::TABLE: {
         File::tableFileHeader header;
         header.filetype = static_cast<uint32_t>(filetype);
-        header.blockNum = 1;
+        header.numBlocks = 1;
         header.beginOffset = 0;
         header.availableOffset = BLOCK_SIZE;
         write(reinterpret_cast<const char *>(&header), sizeof(header));
@@ -77,7 +77,7 @@ void createFile(const std::string &filename, const File::FileType filetype) {
     case File::FileType::INDEX: {
         File::indexFileHeader header;
         header.filetype = static_cast<uint32_t>(filetype);
-        header.blockNum = 1;
+        header.numBlocks = 1;
         header.rootOffset = 0;
         header.availableOffset = BLOCK_SIZE;
         write(reinterpret_cast<const char *>(&header), sizeof(header));

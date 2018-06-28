@@ -106,7 +106,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
     header.beginOffset = newPos;
     uint32_t size = recordBinarySize(*schema);
     if (inBlkOff + size >= BM::BLOCK_SIZE) {
-        header.availableOffset = header.blockNum++ * BM::BLOCK_SIZE;
+        header.availableOffset = header.numBlocks++ * BM::BLOCK_SIZE;
     } else {
         header.availableOffset = newPos + size;
     }
@@ -126,7 +126,7 @@ int deleteAllRecords(const std::string &tableName) {
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
         throw SysError("file type not compatible");
     }
-    header.blockNum = 1;
+    header.numBlocks = 1;
     header.beginOffset = 0;
     header.availableOffset = BM::BLOCK_SIZE;
     BM::writeBlock(BM::makeID(filename, 0),
