@@ -78,7 +78,10 @@ struct Value {
         case ValueType::FLOAT: {
             std::stringstream ss;
             ss << fval;
-            return ss.str();
+            auto str = ss.str();
+            if (str.find_first_of('.') == std::string::npos)
+                str += ".0";
+            return str;
         }
         case ValueType::CHAR:
             return "\'" + std::string(cval) + "\'";
