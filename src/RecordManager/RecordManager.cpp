@@ -2,10 +2,18 @@
 #include <FileSpec.h>
 #include <RecordManager/RecordManager.h>
 #include <RecordManager/RecordSpec.h>
+#include <SysError.h>
 
 namespace RM {
 
-void init() {}
+void init() {
+    auto &schemas = CM::mapSchemas;
+    for (auto &schema : schemas) {
+        if (!hasTable(schema.first)) {
+            throw SysError("missing data for table \'" + schema.first + "\'");
+        }
+    }
+}
 
 static bool satisfy(std::shared_ptr<Schema> schema, const Predicate &predicate,
                     const Record &record) {

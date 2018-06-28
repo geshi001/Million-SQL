@@ -1,9 +1,16 @@
+#include <CatalogManager/CatalogManager.h>
 #include <IndexManager/IndexManager.h>
+#include <SysError.h>
 
 namespace IM {
 
 void init() {
-    //
+    auto &indices = CM::mapIndices;
+    for (auto &index : indices) {
+        if (!hasTable(index.first)) {
+            throw SysError("missing data for index \'" + index.first + "\'");
+        }
+    }
 }
 
 bool hasTable(const std::string &indexName) {

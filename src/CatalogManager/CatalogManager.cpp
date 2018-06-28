@@ -1,9 +1,6 @@
 #include <BufferManager/Block.h>
 #include <CatalogManager/CatalogManager.h>
 #include <CatalogManager/TableSpec.h>
-#include <IndexManager/IndexManager.h>
-#include <RecordManager/RecordManager.h>
-#include <SysError.h>
 #include <algorithm>
 #include <list>
 #include <memory>
@@ -70,10 +67,6 @@ void init() {
                 decodeProperties(bin);
             schema->attributes.push_back(attribute);
         }
-        if (!RM::hasTable(schema->tableName)) {
-            throw SysError("missing data for table \'" + schema->tableName +
-                           "\'");
-        }
         mapSchemas[schema->tableName] = schema;
         mapSchemaOffsets[schema->tableName] = currP;
         currP = nextP;
@@ -96,10 +89,6 @@ void init() {
         index.tableName = std::string(strbuf);
         blk->read(strbuf, NAME_LENGTH);
         index.attrName = std::string(strbuf);
-        if (!IM::hasTable(index.indexName)) {
-            throw SysError("missing data for index \'" + index.indexName +
-                           "\'");
-        }
         mapIndices[index.indexName] = index;
         mapIndexOffsets[index.indexName] = currP;
         currP = nextP;
