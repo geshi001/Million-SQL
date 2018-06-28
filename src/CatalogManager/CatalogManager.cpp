@@ -96,9 +96,22 @@ void init() {
 }
 
 void createTable(const std::string &tableName, const std::string &primaryKey,
-                 const std::vector<Attribute> &attributes) {
+                 const std::vector<Attribute> &_attributes) {
     if (hasTable(tableName)) {
         throw SQLError("table \'" + tableName + "\' already exists");
+    }
+    std::vector<Attribute> attributes(_attributes);
+    bool foundPrimaryKey = false;
+    for (int i = 0; i < attributes.size(); i++) {
+        if (attributes[i].name == primaryKey) {
+            attributes[i].isUnique = true;
+            foundPrimaryKey = true;
+            break;
+        }
+    }
+    if (!foundPrimaryKey) {
+        throw SQLError("cannot find attribute \'" + primaryKey +
+                       "\' in table \'" + tableName + "\'");
     }
     auto schema = std::make_shared<Schema>();
     schema->tableName = tableName;
