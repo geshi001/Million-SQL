@@ -7,13 +7,13 @@ namespace IM {
 void init() {
     auto &indices = CM::mapIndices;
     for (auto &index : indices) {
-        if (!hasTable(index.first)) {
+        if (!hasIndex(index.first)) {
             throw SysError("missing data for index \'" + index.first + "\'");
         }
     }
 }
 
-bool hasTable(const std::string &indexName) {
+bool hasIndex(const std::string &indexName) {
     return BM::fileExists(File::indexFilename(indexName));
 }
 

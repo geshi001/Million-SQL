@@ -6,7 +6,7 @@ namespace IM {
 void init();
 void exit();
 
-bool hasTable(const std::string &);
+bool hasIndex(const std::string &);
 
 void createIndex(const std::string &, const std::string &, const std::string &);
 
