@@ -134,3 +134,12 @@ struct Schema {
 };
 
 using Record = std::vector<Value>;
+
+struct Index {
+    std::string indexName;
+    std::string tableName;
+    std::string attrName;
+    Index(const std::string &indexName, const std::string &tableName,
+          const std::string &attrName)
+        : indexName(indexName), tableName(tableName), attrName(attrName) {}
+};

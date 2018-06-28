@@ -141,6 +141,15 @@ void dropTable(const std::string &tableName) {
     mapSchemaOffsets.erase(tableName);
 }
 
+void createIndex(const std::string &indexName, const std::string &tableName,
+                 const std::string &attrName) {
+    //
+}
+
+void dropIndex(const std::string &indexName) {
+    //
+}
+
 void exit() {}
 
 std::shared_ptr<Schema> getSchema(const std::string &tableName) {

@@ -20,6 +20,10 @@ void createTable(const std::string &, const std::string &,
 
 void dropTable(const std::string &);
 
+void createIndex(const std::string &, const std::string &, const std::string &);
+
+void dropIndex(const std::string &);
+
 std::shared_ptr<Schema> getSchema(const std::string &);
 
 } // namespace CM

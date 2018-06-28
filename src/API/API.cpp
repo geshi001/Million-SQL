@@ -1,5 +1,6 @@
 #include <API/API.h>
 #include <CatalogManager/CatalogManager.h>
+#include <IndexManager/IndexManager.h>
 #include <RecordManager/RecordManager.h>
 
 void API::createTable(const std::string &tableName,
@@ -16,9 +17,15 @@ void API::dropTable(const std::string &tableName) {
 
 void API::createIndex(const std::string &indexName,
                       const std::string &tableName,
-                      const std::string &attrName) {}
+                      const std::string &attrName) {
+    CM::createIndex(indexName, tableName, attrName);
+    IM::createIndex(indexName, tableName, attrName);
+}
 
-void API::dropIndex(const std::string &indexName) {}
+void API::dropIndex(const std::string &indexName) {
+    CM::dropIndex(indexName);
+    IM::dropIndex(indexName);
+}
 
 std::pair<std::shared_ptr<Schema>, std::vector<Record>>
 API::select(const std::vector<std::string> &attributes,
