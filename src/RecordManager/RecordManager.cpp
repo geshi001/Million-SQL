@@ -62,7 +62,7 @@ void dropTable(const std::string &tableName) {
     }
 }
 
-void insertRecord(const std::string &tableName, const Record &record) {
+uint32_t insertRecord(const std::string &tableName, const Record &record) {
     auto filename = File::tableFilename(tableName);
     if (!hasTable(tableName)) {
         throw SysError("missing data for table \'" + tableName + "\'");
@@ -114,6 +114,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
     }
     BM::writeBlock(BM::makeID(filename, 0),
                    reinterpret_cast<const char *>(&header), 0, sizeof(header));
+    return newPos;
 }
 
 int deleteAllRecords(const std::string &tableName) {
@@ -275,6 +276,56 @@ std::vector<Record> selectRecords(std::shared_ptr<Schema> schema,
         }
     }
     std::reverse(records.begin(), records.end());
+    return records;
+}
+
+std::vector<Record>
+selectRecordsWithOffsets(std::shared_ptr<Schema> schema,
+                         const std::vector<Predicate> &predicates,
+                         const std::vector<uint32_t> &offsets) {
+    auto &tableName = schema->tableName;
+    std::vector<Record> records;
+    auto filename = File::tableFilename(tableName);
+    if (!hasTable(tableName)) {
+        throw SysError("missing data for table \'" + tableName + "\'");
+    }
+    BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
+    blk0->resetPos();
+    File::tableFileHeader header;
+    blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
+    if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
+        throw SysError("file type not compatible");
+    }
+    for (auto pos : offsets) {
+        uint32_t blkOff = BM::blockOffset(pos);
+        uint32_t inBlkOff = BM::inBlockOffset(pos);
+        BM::PtrBlock blk = BM::readBlock(BM::makeID(filename, blkOff));
+        blk->resetPos(inBlkOff);
+        Record record;
+        blk->read(reinterpret_cast<char *>(&pos), sizeof(uint32_t));
+        if (pos & DELETED_MARK) {
+            pos &= DELETED_MASK;
+            continue;
+        }
+        for (auto &attribute : schema->attributes) {
+            Value value(attribute);
+            if (value.type == ValueType::CHAR) {
+                std::memset(value.val(), 0, 256);
+            }
+            blk->read(value.val(), value.size());
+            record.emplace_back(std::move(value));
+        }
+        bool chosen = true;
+        for (auto predicate : predicates) {
+            chosen &= satisfy(schema, predicate, record);
+            if (!chosen) {
+                break;
+            }
+        }
+        if (chosen) {
+            records.push_back(record);
+        }
+    }
     return records;
 }
 
