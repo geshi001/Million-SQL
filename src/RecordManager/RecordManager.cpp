@@ -33,10 +33,13 @@ static bool satisfy(std::shared_ptr<Schema> schema, const Predicate &predicate,
                    "\' in table \'" + schema->tableName + "\'");
 }
 
+bool hasTable(const std::string &tableName) {
+    return BM::fileExists(File::tableFilename(tableName));
+}
+
 void createTable(const std::string &tableName) {
-    auto filename = File::tableFilename(tableName);
-    if (!BM::fileExists(filename)) {
-        BM::createFile(filename, File::FileType::TABLE);
+    if (!hasTable(tableName)) {
+        BM::createFile(File::tableFilename(tableName), File::FileType::TABLE);
     } else {
         throw SQLError("table \'" + tableName + "\' already exists");
     }

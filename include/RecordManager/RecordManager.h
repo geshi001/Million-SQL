@@ -9,6 +9,7 @@ namespace RM {
 void init();
 void exit();
 
+bool hasTable(const std::string &);
 void createTable(const std::string &);
 void dropTable(const std::string &);
 void insertRecord(const std::string &, const Record &);
