@@ -172,6 +172,9 @@ void createIndex(const std::string &indexName, const std::string &tableName,
     if (hasIndex(indexName)) {
         throw SQLError("index \'" + indexName + "\' already exists");
     }
+    if (!hasTable(tableName)) {
+        throw SQLError("table \'" + tableName + "\' does not exist");
+    }
     auto schema = mapSchemas[tableName];
     auto &attributes = schema->attributes;
     if (std::none_of(attributes.begin(), attributes.end(),
