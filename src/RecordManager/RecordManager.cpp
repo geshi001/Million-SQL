@@ -54,18 +54,17 @@ void createTable(const std::string &tableName) {
 }
 
 void dropTable(const std::string &tableName) {
-    auto filename = File::tableFilename(tableName);
-    if (BM::fileExists(filename)) {
-        BM::deleteFile(filename);
+    if (hasTable(tableName)) {
+        BM::deleteFile(File::tableFilename(tableName));
     } else {
-        throw SQLError("table \'" + tableName + "\' does not exist");
+        throw SysError("missing data for table \'" + tableName + "\'");
     }
 }
 
 void insertRecord(const std::string &tableName, const Record &record) {
     auto filename = File::tableFilename(tableName);
-    if (!BM::fileExists(filename)) {
-        throw SQLError("table \'" + tableName + "\' not exist");
+    if (!hasTable(tableName)) {
+        throw SysError("missing data for table \'" + tableName + "\'");
     }
     auto schema = CM::getSchema(tableName);
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
@@ -73,7 +72,7 @@ void insertRecord(const std::string &tableName, const Record &record) {
     File::tableFileHeader header;
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
-        throw std::runtime_error("file type not compatible");
+        throw SysError("file type not compatible");
     }
 
     uint32_t newPos = header.availableOffset;
@@ -117,15 +116,15 @@ void insertRecord(const std::string &tableName, const Record &record) {
 
 int deleteAllRecords(const std::string &tableName) {
     auto filename = File::tableFilename(tableName);
-    if (!BM::fileExists(filename)) {
-        throw SQLError("table \'" + tableName + "\' not exist");
+    if (!hasTable(tableName)) {
+        throw SysError("missing data for table \'" + tableName + "\'");
     }
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
     blk0->resetPos();
     File::tableFileHeader header;
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
-        throw std::runtime_error("file type not compatible");
+        throw SysError("file type not compatible");
     }
     header.blockNum = 1;
     header.beginOffset = 0;
@@ -137,15 +136,15 @@ int deleteAllRecords(const std::string &tableName) {
 int deleteRecords(const std::string &tableName,
                   const std::vector<uint32_t> &offsets) {
     auto filename = File::tableFilename(tableName);
-    if (!BM::fileExists(filename)) {
-        throw SQLError("table \'" + tableName + "\' not exist");
+    if (!hasTable(tableName)) {
+        throw SysError("missing data for table \'" + tableName + "\'");
     }
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
     blk0->resetPos();
     File::tableFileHeader header;
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
-        throw std::runtime_error("file type not compatible");
+        throw SysError("file type not compatible");
     }
     for (uint32_t pos : offsets) {
         uint32_t blkOff = BM::blockOffset(pos);
@@ -155,7 +154,7 @@ int deleteRecords(const std::string &tableName,
         uint32_t mark;
         blk->read(reinterpret_cast<char *>(&mark), sizeof(uint32_t));
         if (mark & DELETED_MARK) {
-            throw SQLError("record has already been deleted");
+            throw SysError("record has already been deleted");
         }
         mark |= DELETED_MARK;
         BM::writeBlock(BM::makeID(filename, blkOff),
@@ -169,15 +168,15 @@ int deleteRecords(std::shared_ptr<Schema> schema,
                   const std::vector<Predicate> &predicates) {
     auto &tableName = schema->tableName;
     auto filename = File::tableFilename(tableName);
-    if (!BM::fileExists(filename)) {
-        throw SQLError("table \'" + tableName + "\' not exist");
+    if (!hasTable(tableName)) {
+        throw SysError("missing data for table \'" + tableName + "\'");
     }
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
     blk0->resetPos();
     File::tableFileHeader header;
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
-        throw std::runtime_error("file type not compatible");
+        throw SysError("file type not compatible");
     }
     int numDeleted = 0;
     uint32_t pos = header.beginOffset;
@@ -223,15 +222,15 @@ std::vector<Record> selectRecords(std::shared_ptr<Schema> schema,
     auto &tableName = schema->tableName;
     std::vector<Record> records;
     auto filename = File::tableFilename(tableName);
-    if (!BM::fileExists(filename)) {
-        throw SQLError("table \'" + tableName + "\' not exist");
+    if (!hasTable(tableName)) {
+        throw SysError("missing data for table \'" + tableName + "\'");
     }
     BM::PtrBlock blk0 = BM::readBlock(BM::makeID(filename, 0));
     blk0->resetPos();
     File::tableFileHeader header;
     blk0->read(reinterpret_cast<char *>(&header), sizeof(header));
     if (header.filetype != static_cast<uint32_t>(File::FileType::TABLE)) {
-        throw std::runtime_error("file type not compatible");
+        throw SysError("file type not compatible");
     }
     uint32_t pos = header.beginOffset;
     while (pos != 0) {
