@@ -1,6 +1,8 @@
+#include <BufferManager/BufferManager.h>
 #include <CatalogManager/CatalogManager.h>
+#include <Error.h>
+#include <FileSpec.h>
 #include <IndexManager/IndexManager.h>
-#include <SysError.h>
 
 namespace IM {
 
@@ -19,11 +21,19 @@ bool hasIndex(const std::string &indexName) {
 
 void createIndex(const std::string &indexName, const std::string &tableName,
                  const std::string &attrName) {
-    //
+    if (!hasIndex(indexName)) {
+        BM::createFile(File::indexFilename(indexName), File::FileType::INDEX);
+    } else {
+        throw Warning("file for index \'" + indexName + "\' already exists");
+    }
 }
 
 void dropIndex(const std::string &indexName) {
-    //
+    if (hasIndex(indexName)) {
+        BM::deleteFile(File::indexFilename(indexName));
+    } else {
+        throw SysError("missing data for index \'" + indexName + "\'");
+    }
 }
 
 void exit() {
