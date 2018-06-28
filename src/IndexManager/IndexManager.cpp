@@ -6,6 +6,10 @@ void init() {
     //
 }
 
+bool hasTable(const std::string &indexName) {
+    return BM::fileExists(File::indexFilename(indexName));
+}
+
 void createIndex(const std::string &indexName, const std::string &tableName,
                  const std::string &attrName) {
     //
