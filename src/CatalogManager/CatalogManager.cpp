@@ -172,6 +172,16 @@ void createIndex(const std::string &indexName, const std::string &tableName,
     if (hasIndex(indexName)) {
         throw SQLError("index \'" + indexName + "\' already exists");
     }
+    auto schema = mapSchemas[tableName];
+    auto &attributes = schema->attributes;
+    if (std::none_of(attributes.begin(), attributes.end(),
+                     [&](const Attribute &attribute) -> bool {
+                         return attribute.name == attrName;
+                     })) {
+        throw SQLError("cannot find attribute \'" + attrName +
+                       "\' in table \'" + tableName + "\'");
+    }
+
     Index index;
     index.indexName = indexName;
     index.tableName = tableName;
@@ -231,6 +241,29 @@ void dropIndex(const std::string &indexName) {
                    reinterpret_cast<const char *>(&nextP), 0, sizeof(uint32_t));
     mapIndices.erase(indexName);
     mapIndexOffsets.erase(indexName);
+}
+
+void checkPredicates(const std::string &tableName,
+                     const std::vector<Predicate> &predicates) {
+    auto schema = getSchema(tableName);
+    for (auto &predicate : predicates) {
+        bool found = false;
+        for (auto &attribute : schema->attributes) {
+            if (attribute.name == predicate.attrName) {
+                if (attribute.type == predicate.val.type) {
+                    found = true;
+                    break;
+                } else {
+                    throw SQLError(
+                        "cannot compare values with different types");
+                }
+            }
+        }
+        if (!found) {
+            throw SQLError("cannot find attribute \'" + predicate.attrName +
+                           "\' in table \'" + schema->tableName + "\'");
+        }
+    }
 }
 
 void exit() {}

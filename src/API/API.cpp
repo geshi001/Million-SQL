@@ -31,6 +31,7 @@ std::pair<std::shared_ptr<Schema>, std::vector<Record>>
 API::select(const std::vector<std::string> &attributes,
             const std::string &tableName,
             const std::vector<Predicate> &predicates) {
+    CM::checkPredicates(tableName, predicates);
     auto schema = CM::getSchema(tableName);
     auto records =
         RM::project(RM::selectRecords(schema, predicates), schema, attributes);
@@ -47,6 +48,7 @@ int API::deleteFrom(const std::string &tableName,
     if (predicates.empty()) {
         return RM::deleteAllRecords(tableName);
     } else {
+        CM::checkPredicates(tableName, predicates);
         auto schema = CM::getSchema(tableName);
         return RM::deleteRecords(schema, predicates);
     }

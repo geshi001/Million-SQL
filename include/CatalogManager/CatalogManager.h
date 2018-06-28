@@ -25,6 +25,8 @@ void createIndex(const std::string &, const std::string &, const std::string &);
 
 void dropIndex(const std::string &);
 
+void checkPredicates(const std::string &, const std::vector<Predicate> &);
+
 std::shared_ptr<Schema> getSchema(const std::string &);
 
 } // namespace CM

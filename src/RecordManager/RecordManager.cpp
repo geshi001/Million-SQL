@@ -292,7 +292,8 @@ std::vector<Record> project(const std::vector<Record> &records,
             }
         }
         if (!found) {
-            throw SQLError("cannot find attribute \'" + attrName + "\'");
+            throw SQLError("cannot find attribute \'" + attrName +
+                           "\' in table \'" + schema->tableName + "\'");
         }
     }
     std::vector<Record> results;
