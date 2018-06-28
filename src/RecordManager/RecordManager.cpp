@@ -3,6 +3,7 @@
 #include <FileSpec.h>
 #include <RecordManager/RecordManager.h>
 #include <RecordManager/RecordSpec.h>
+#include <algorithm>
 
 namespace RM {
 
@@ -273,6 +274,7 @@ std::vector<Record> selectRecords(std::shared_ptr<Schema> schema,
             records.push_back(record);
         }
     }
+    std::reverse(records.begin(), records.end());
     return records;
 }
 
