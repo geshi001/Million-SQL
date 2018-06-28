@@ -92,13 +92,114 @@ std::tuple<Ptr, Off, bool> Tree::find(const Key &key) const {
     return std::make_tuple(currOffset, NullPtr, false);
 }
 
-bool Tree::hasKey(const Key &key) const {}
+bool Tree::hasKey(const Key &key) const {
+    auto result = find(key);
+    return std::get<2>(result);
+}
 
 void Tree::remove(const Key &key) const {}
 
-void Tree::insert(const Key &key, const Off &offset) {}
+void Tree::insert(const Key &key, const Off &offset) {
+    Ptr leafOffset = NullPtr;
+    auto leaf = std::make_shared<Node>(fanout);
+    if (root == NullPtr) {
+        root = header.numBlocks++;
+        leafOffset = root;
+    } else {
+        auto result = find(key);
+        if (std::get<2>(result)) {
+            BM::BlockID id = BM::makeID(filename, std::get<0>(result));
+            BM::PtrBlock blk = BM::readBlock(id);
+            auto leaf = std::make_shared<Node>(fanout);
+            leaf->readFromBlock(blk, info);
+            for (int i = 0; i < leaf->numKeys; i++) {
+                if (leaf->keys[i] == key) {
+                    leaf->children[i] = offset;
+                    leaf->writeToBlock(id);
+                    return;
+                }
+            }
+        }
+        leafOffset = std::get<0>(result);
+        BM::PtrBlock blk = BM::readBlock(BM::makeID(filename, leafOffset));
+        leaf->readFromBlock(blk, info);
+    }
+    if (leaf->numKeys < fanout - 1) {
+        int i = leaf->numKeys;
+        for (i--; i >= 0; i--) {
+            if (leaf->keys[i] > key) {
+                leaf->keys[i + 1] = leaf->keys[i];
+                leaf->children[i + 1] = leaf->children[i];
+            } else {
+                break;
+            }
+        }
+        leaf->keys[i + 1] = key;
+        leaf->children[i + 1] = offset;
+        leaf->numKeys++;
+        leaf->writeToBlock(BM::makeID(filename, leafOffset));
+    } else {
+        Key *tmpKeys = new Key[fanout];
+        Ptr *tmpChildren = new Ptr[fanout];
 
-void Tree::insert_in_leaf(const Ptr &leaf, const Key &key, const Off &offset) {}
+        std::copy(leaf->keys, leaf->keys + fanout - 1, tmpKeys);
+        std::copy(leaf->children, leaf->children + fanout - 1, tmpChildren);
+
+        int i = fanout - 1;
+        for (i--; i >= 0; i--) {
+            if (tmpKeys[i] > key) {
+                tmpKeys[i + 1] = tmpKeys[i];
+                tmpChildren[i + 1] = tmpChildren[i];
+            } else {
+                break;
+            }
+        }
+        tmpKeys[i + 1] = key;
+        tmpChildren[i + 1] = offset;
+
+        int numKeys0 = (fanout + 1) / 2;
+        int numKeys1 = fanout - numKeys0;
+
+        auto leaf0 = leaf;
+        auto leaf1 = std::make_shared<Node>(fanout);
+        Ptr leafOffset0 = leafOffset;
+        Ptr leafOffset1 = header.numBlocks++;
+
+        leaf1->isLeaf = true;
+        leaf1->parent = leaf0->parent;
+
+        leaf0->numKeys = numKeys0;
+        leaf1->numKeys = numKeys1;
+
+        leaf1->children[fanout - 1] = leaf0->children[fanout - 1];
+        leaf0->children[fanout - 1] = leafOffset1;
+
+        std::fill_n(leaf0->children, fanout - 1, NullPtr);
+        std::fill_n(leaf1->children, fanout - 1, NullPtr);
+
+        for (int i = 0; i < numKeys0; i++) {
+            leaf0->keys[i] = tmpKeys[i];
+            leaf0->children[i] = tmpChildren[i];
+        }
+
+        if (numKeys0 < fanout - 1) {
+            leaf0->children[numKeys0] = NullPtr;
+        }
+
+        for (int i = 0, j = numKeys0; i < numKeys1; i++, j++) {
+            leaf1->keys[i] = tmpKeys[j];
+            leaf1->children[i] = tmpChildren[j];
+        }
+
+        delete[] tmpKeys;
+        delete[] tmpChildren;
+
+        leaf0->writeToBlock(BM::makeID(filename, leafOffset0));
+        leaf1->writeToBlock(BM::makeID(filename, leafOffset1));
+
+        insert_in_parent(leafOffset0, leaf1->keys[0], leafOffset1);
+    }
+}
 
 void Tree::insert_in_parent(const Ptr &node0, const Key &key,
                             const Ptr &node1) {}

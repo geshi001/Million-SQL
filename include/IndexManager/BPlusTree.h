@@ -1,6 +1,7 @@
 #pragma once
 #include <BufferManager/Block.h>
 #include <DataType.h>
+#include <FileSpec.h>
 #include <cstdint>
 #include <tuple>
 #include <vector>
@@ -32,6 +33,7 @@ struct Tree {
     int fanout;
     std::pair<ValueType, size_t> info;
     std::string filename;
+    File::indexFileHeader header;
     Tree(int fanout) : fanout(fanout), root(NullPtr) {}
     std::tuple<Ptr, Off, bool> find(const Key &) const;
     bool hasKey(const Key &) const;
@@ -39,7 +41,6 @@ struct Tree {
     void insert(const Key &, const Off &);
 
   private:
-    void insert_in_leaf(const Ptr &, const Key &, const Off &);
     void insert_in_parent(const Ptr &, const Key &, const Ptr &);
 };
 
