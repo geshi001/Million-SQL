@@ -4,11 +4,9 @@
 #include <FileSpec.h>
 #include <list>
 
-namespace CatalogManager {
+namespace CM {
 
 constexpr size_t NAME_LENGTH = 64;
-
-namespace BM = BufferManager;
 
 extern std::list<std::shared_ptr<Schema>> schemas;
 
@@ -24,4 +22,4 @@ void dropTable(const std::string &);
 
 std::shared_ptr<Schema> getSchema(const std::string &);
 
-} // namespace CatalogManager
+} // namespace CM

@@ -1,6 +1,6 @@
 #include <RecordManager/RecordSpec.h>
 
-namespace RecordManager {
+namespace RM {
 
 uint32_t recordBinarySize(const Schema &schema) {
     uint32_t cnt = sizeof(uint32_t); // pointer to next record
@@ -18,4 +18,4 @@ uint32_t recordBinarySize(const Record &record) {
     return cnt;
 }
 
-} // namespace RecordManager
+} // namespace RM

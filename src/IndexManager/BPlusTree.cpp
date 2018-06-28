@@ -1,10 +1,8 @@
 #include <IndexManager/BPlusTree.h>
 
-namespace IndexManager {
+namespace IM {
 
 namespace BPlusTree {
-
-namespace BM = BufferManager;
 
 void Node::initFromBlock(BM::PtrBlock blk,
                          const std::pair<ValueType, size_t> &info) {
@@ -32,4 +30,4 @@ void Node::initFromBlock(BM::PtrBlock blk,
 
 } // namespace BPlusTree
 
-} // namespace IndexManager
+} // namespace IM

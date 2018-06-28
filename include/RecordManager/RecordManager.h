@@ -4,10 +4,7 @@
 #include <DataType.h>
 #include <string>
 
-namespace RecordManager {
-
-namespace BM = BufferManager;
-namespace CM = CatalogManager;
+namespace RM {
 
 void init();
 void exit();
@@ -24,4 +21,4 @@ std::vector<Record> project(const std::vector<Record> &,
                             std::shared_ptr<Schema>,
                             const std::vector<std::string> &);
 
-} // namespace RecordManager
+} // namespace RM

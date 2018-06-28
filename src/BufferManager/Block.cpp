@@ -5,7 +5,7 @@
 #include <fstream>
 using namespace std;
 
-namespace BufferManager {
+namespace BM {
 
 Block::Block(const BlockID &id)
     : filename(id.first), offset(id.second), free(true), dirty(false),
@@ -41,4 +41,4 @@ void Block::createFile() {
     ofs.close();
 }
 
-} // namespace BufferManager
+} // namespace BM

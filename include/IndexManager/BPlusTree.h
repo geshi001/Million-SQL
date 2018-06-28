@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace IndexManager {
+namespace IM {
 
 namespace BPlusTree {
 
@@ -17,8 +17,7 @@ struct Node {
     std::vector<Ptr> values;
     Node(int fanout)
         : values(fanout - 1), parent(NullPtr), children(fanout, NullPtr) {}
-    void initFromBlock(BufferManager::PtrBlock,
-                       const std::pair<ValueType, size_t> &);
+    void initFromBlock(BM::PtrBlock, const std::pair<ValueType, size_t> &);
 };
 
 struct Tree {
@@ -28,4 +27,4 @@ struct Tree {
 
 } // namespace BPlusTree
 
-} // namespace IndexManager
+} // namespace IM

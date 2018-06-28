@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-namespace BufferManager {
+namespace BM {
 
 constexpr size_t BLOCK_SIZE = 4096; // 4KB
 
@@ -50,4 +50,4 @@ class Block {
 
 using PtrBlock = std::shared_ptr<Block>;
 
-} // namespace BufferManager
+} // namespace BM

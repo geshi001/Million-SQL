@@ -4,9 +4,6 @@
 #include <RecordManager/RecordManager.h>
 
 using namespace std;
-namespace BM = BufferManager;
-namespace CM = CatalogManager;
-namespace RM = RecordManager;
 
 int main() {
     BM::init();

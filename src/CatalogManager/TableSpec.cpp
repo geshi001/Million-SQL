@@ -6,7 +6,7 @@
 #define CHAR_MASK 0xFFu
 #define UNIQUE 0x1000u
 
-namespace CatalogManager {
+namespace CM {
 
 uint32_t binarySize(const Schema &schema) {
     uint32_t cnt = sizeof(uint32_t) + sizeof(uint32_t);
@@ -55,4 +55,4 @@ std::tuple<ValueType, size_t, bool> decodeProperties(const uint32_t bin) {
     return std::make_tuple(type, charCnt, isUnique);
 }
 
-} // namespace CatalogManager
+} // namespace CM

@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace CatalogManager {
+namespace CM {
 
 std::list<std::shared_ptr<Schema>> schemas;
 std::unordered_map<std::string, std::shared_ptr<Schema>> mapSchemas;
@@ -152,4 +152,4 @@ std::shared_ptr<Schema> getSchema(const std::string &tableName) {
     }
 }
 
-} // namespace CatalogManager
+} // namespace CM

@@ -3,9 +3,7 @@
 #include <RecordManager/RecordManager.h>
 #include <RecordManager/RecordSpec.h>
 
-namespace RecordManager {
-
-namespace BM = BufferManager;
+namespace RM {
 
 void init() {}
 
@@ -290,4 +288,4 @@ std::vector<Record> project(const std::vector<Record> &records,
 
 void exit() {}
 
-} // namespace RecordManager
+} // namespace RM

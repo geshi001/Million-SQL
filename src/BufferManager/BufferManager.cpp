@@ -5,7 +5,7 @@
 #include <list>
 #include <sys/stat.h>
 
-namespace BufferManager {
+namespace BM {
 
 static std::list<PtrBlock> cache;
 static const char empty_buffer[BLOCK_SIZE] = {};
@@ -116,4 +116,4 @@ void writeBlock(const BlockID &id, const char *src, uint32_t start,
     return;
 }
 
-} // namespace BufferManager
+} // namespace BM

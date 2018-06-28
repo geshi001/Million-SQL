@@ -2,9 +2,6 @@
 #include <CatalogManager/CatalogManager.h>
 #include <RecordManager/RecordManager.h>
 
-namespace CM = CatalogManager;
-namespace RM = RecordManager;
-
 void API::createTable(const std::string &tableName,
                       const std::string &primaryKey,
                       const std::vector<Attribute> &attributes) {
